@@ -1,4 +1,4 @@
-package org.estonlabs.coinbase.domain.account;
+package org.estonlabs.coinbase.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,7 @@ import javax.annotation.Generated;
 import java.util.Date;
 
 @Generated("jsonschema2pojo")
-public class CbAccountPagination {
+public class CbPagination {
     private Integer limit;
     private String order;
 

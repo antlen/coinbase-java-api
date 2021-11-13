@@ -2,13 +2,15 @@ package org.estonlabs.coinbase.domain.account;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.estonlabs.coinbase.domain.DataProvider;
+import org.estonlabs.coinbase.domain.Named;
 
 import javax.annotation.Generated;
 import java.util.Date;
 import java.util.Objects;
 
 @Generated("jsonschema2pojo")
-public class CbAccount {
+public class CbAccount implements Named {
 
     private String id;
     private String name;
@@ -45,6 +47,7 @@ public class CbAccount {
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -152,20 +155,20 @@ public class CbAccount {
     @Override
     public String toString() {
         return "CbAccount{" +
-                "id='" + Objects.toString(id) + '\'' +
-                ", name='" + Objects.toString(name) + '\'' +
-                ", primary=" + Objects.toString(primary) +
-                ", type='" + Objects.toString(type) + '\'' +
-                ", currency=" + Objects.toString(currency) +
-                ", balance=" + Objects.toString(balance) +
-                ", resource='" + Objects.toString(resource) + '\'' +
-                ", rewards=" + Objects.toString(rewards) +
-                ", createdAt=" + Objects.toString(createdAt) +
-                ", updatedAt=" + Objects.toString(updatedAt) +
-                ", resourcePath='" + Objects.toString(resourcePath) + '\'' +
-                ", allowDeposits=" + Objects.toString(allowDeposits) +
-                ", alloWithdrawals=" + Objects.toString(alloWithdrawals) +
-                ", rewardsApy=" + Objects.toString(rewardsApy) +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", primary=" + primary +
+                ", type='" + type + '\'' +
+                ", currency=" + currency +
+                ", balance=" + balance +
+                ", resource='" + resource + '\'' +
+                ", rewards=" + rewards +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", resourcePath='" + resourcePath + '\'' +
+                ", allowDeposits=" + allowDeposits +
+                ", alloWithdrawals=" + alloWithdrawals +
+                ", rewardsApy='" + rewardsApy + '\'' +
                 '}';
     }
 }

@@ -3,13 +3,14 @@ package org.estonlabs.coinbase.domain.user;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.estonlabs.coinbase.domain.CbCountry;
 import org.estonlabs.coinbase.domain.CbTiers;
+import org.estonlabs.coinbase.domain.Named;
 
 import java.util.Date;
 import java.util.Objects;
 import javax.annotation.Generated;
 
 @Generated("jsonschema2pojo")
-public class CbUser {
+public class CbUser implements Named {
 
     private String id;
     private String name;
@@ -94,6 +95,7 @@ public class CbUser {
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }

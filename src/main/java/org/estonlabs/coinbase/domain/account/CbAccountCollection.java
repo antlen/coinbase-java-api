@@ -1,28 +1,12 @@
 package org.estonlabs.coinbase.domain.account;
 
+import org.estonlabs.coinbase.domain.CbPagination;
+import org.estonlabs.coinbase.domain.CbPaginationCollection;
+import org.estonlabs.coinbase.domain.DataProvider;
+
 import java.util.List;
 import javax.annotation.Generated;
 
 @Generated("jsonschema2pojo")
-public class CbAccountCollection {
-
-    private CbAccountPagination pagination;
-    private List<CbAccount> data = null;
-
-    public CbAccountPagination getPagination() {
-        return pagination;
-    }
-
-    public void setPagination(CbAccountPagination pagination) {
-        this.pagination = pagination;
-    }
-
-    public List<CbAccount> getData() {
-        return data;
-    }
-
-    public void setData(List<CbAccount> data) {
-        this.data = data;
-    }
-
+public class CbAccountCollection extends CbPaginationCollection<CbAccount> {
 }

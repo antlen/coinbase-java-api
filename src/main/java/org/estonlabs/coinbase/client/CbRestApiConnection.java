@@ -1,109 +1,109 @@
 package org.estonlabs.coinbase.client;
 
-import org.apache.commons.codec.binary.Hex;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.estonlabs.coinbase.client.auth.AuthFilter;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.concurrent.atomic.AtomicBoolean;
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.*;
 
-public class CbRestApiConnection {
-    public static final String ALGO = "HmacSHA256";
-    private static final String API_DATE = "2021-11-05";
+public class CbRestApiConnection implements RestfulConnection {
 
-    private final SecretKeySpec keySpec;
-    private final String apiKey;
+    private final EndPoint endPoint;
+    private volatile LoggingClientResponseFilter responseLogger;
     private final Client client;
-    private final LoggingClientResponseFilter responseLogger = new LoggingClientResponseFilter();
+    private final boolean isSandbox;
 
-    CbRestApiConnection(String apiKey, byte[] secretKey){
-        this.apiKey = apiKey;
-        keySpec =  new SecretKeySpec(secretKey, ALGO);
-        //eagerly test the sign generation
-        try {
-            generateSign(Instant.now().getEpochSecond(),"","");
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }finally{
-            for(int i=0; i<secretKey.length; i++){
-                secretKey[i]=(byte)0;
-            }
+    CbRestApiConnection(AuthFilter auth, EndPoint endPoint, boolean isSandbox){
+        this.endPoint=endPoint;
+        this.client = ClientBuilder.newClient();;
+        client.register(new ClientRequestAuthFilter(auth));
+        this.isSandbox=isSandbox;
+    }
+
+    @Override
+    public <T> T get(Class<T> responseType, String path, String parameter){
+        Invocation.Builder request = client.target(endPoint.getEndPoint())
+                .path(endPoint.adaptPath(path, parameter))
+                .request(MediaType.APPLICATION_JSON);
+        return request.get(responseType);
+    }
+
+    @Override
+    public <T, I> T put(Class<T> responseType, String path, String parameter, I jsonObj) {
+        Entity<Object> entity = Entity.json(jsonObj);
+        WebTarget target = client.target(endPoint.getEndPoint());
+        Invocation.Builder request = target
+                .path(endPoint.adaptPath(path, parameter))
+                .request(MediaType.APPLICATION_JSON);
+
+        return request.put(entity, responseType);
+    }
+
+    @Override
+    public <T, I> T put(Class<T> responseType, String path, I jsonObj) {
+        return put(responseType, path, null, jsonObj);
+    }
+
+/**
+    public <T> T post(Class<T> responseType, String path, Object jsonObj) {
+        Entity<Object> entity = Entity.json(jsonObj);
+        WebTarget target = getClient().target(endPoint.getEndPoint());
+        Invocation.Builder request = target
+                .path(endPoint.adaptPath(path, null))
+                .request(MediaType.APPLICATION_JSON);
+
+        return request.post(entity, responseType);
+    }
+**/
+
+    public synchronized void setLogJsonMessages(boolean b){
+        if(b && responseLogger == null){
+            responseLogger = new LoggingClientResponseFilter();
+            client.register(responseLogger);
         }
-        client = ClientBuilder.newClient();
+        responseLogger.setEnabled(b);
+    }
+
+    public boolean isSandbox() {
+        return isSandbox;
+    }
+
+    public <T> T get(Class<T> responseType, String path){
+        return get(responseType, path, null);
     }
 
     public void close(){
         client.close();
     }
 
-    public void setLogResponsesEnabled(boolean b){
-        responseLogger.setEnabled(b);
-    }
+    private class ClientRequestAuthFilter implements ClientRequestFilter{
+        private final AuthFilter authFilter;
 
-    public Invocation.Builder request(String path){
-        Invocation.Builder b = client.target("https://api.coinbase.com")
-                .path(path).request(MediaType.APPLICATION_JSON);
-        addHeaders(b, path, "GET");
-        return b;
-    }
-
-    private void addHeaders(Invocation.Builder ib, String path, String method) {
-        Long timestamp = Instant.now().getEpochSecond();
-
-        ib.header("CB-ACCESS-KEY", apiKey);
-        ib.header("CB-ACCESS-TIMESTAMP", timestamp.toString());
-        ib.header("CB-VERSION", API_DATE);
-        try{
-            ib.header("CB-ACCESS-SIGN", generateSign(timestamp,path, method));
-        }catch (Exception e){
-            //should never get here as already tested the sign generation in the constructor.
-            e.printStackTrace();
-        }
-    }
-
-    private String generateSign( Long timestamp,String path, String method) throws NoSuchAlgorithmException, InvalidKeyException{
-        String sign = timestamp.toString() + method + path ;
-        Mac mac = Mac.getInstance(ALGO);
-        mac.init(keySpec);
-        return Hex.encodeHexString(mac.doFinal(sign.getBytes()));
-    }
-
-    private class LoggingClientResponseFilter implements ClientResponseFilter {
-        private AtomicBoolean enabled = new AtomicBoolean(false);
-        private AtomicBoolean initialized = new AtomicBoolean(false);
-
-        public synchronized void setEnabled(boolean b){
-            if(b && !initialized.get()){
-                CbRestApiConnection.this.client.register(this);
-            }
-            enabled.set(b);
+        public ClientRequestAuthFilter(AuthFilter authFilter) {
+            this.authFilter = authFilter;
         }
 
         @Override
-        public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
-            if(!enabled.get()) return;
-
-            final StringBuilder b = new StringBuilder();
-            if (responseContext.hasEntity()) {
-                InputStream stream = responseContext.getEntityStream();
-                if (!stream.markSupported()) {
-                    stream = new BufferedInputStream(stream);
+        public void filter(ClientRequestContext ctx){
+            try {
+            MultivaluedMap<String, Object> headers = ctx.getHeaders();
+            String body = null;
+                if(CbRestApiConnection.this.responseLogger.isEnabled()){
+                    System.out.println(ctx.getUri().toString());
                 }
-                stream.mark(Integer.MAX_VALUE);
-                b.append(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
-
-                b.append('\n');
-                stream.reset();
-                responseContext.setEntityStream(stream);
-                System.out.println(b.toString());
+                if(ctx.hasEntity()){
+                    ObjectMapper om = new ObjectMapper();
+                    body = om.writeValueAsString(ctx.getEntity());
+                    if(CbRestApiConnection.this.responseLogger.isEnabled()){
+                        System.out.println(body);
+                    }
+                }
+                authFilter.addAuthHeaders(headers, ctx.getUri().getPath(), ctx.getMethod(), body);
+            } catch (JsonProcessingException e) {
+                throw new CbApiException(e.getMessage(), e);
             }
         }
     }
