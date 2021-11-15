@@ -26,29 +26,14 @@ public class CbAccountRef {
         return id;
     }
 
-    @JsonProperty("id")
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonProperty("resource")
     public String getResource() {
         return resource;
     }
 
-    @JsonProperty("resource")
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
     @JsonProperty("resource_path")
     public String getResourcePath() {
         return resourcePath;
-    }
-
-    @JsonProperty("resource_path")
-    public void setResourcePath(String resourcePath) {
-        this.resourcePath = resourcePath;
     }
 
     @Override

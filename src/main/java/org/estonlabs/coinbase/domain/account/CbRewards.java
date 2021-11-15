@@ -18,24 +18,12 @@ public class CbRewards {
         return apy;
     }
 
-    public void setApy(String apy) {
-        this.apy = apy;
-    }
-
     public String getFormattedApy() {
         return formattedApy;
     }
 
-    public void setFormattedApy(String formattedApy) {
-        this.formattedApy = formattedApy;
-    }
-
     public String getLabel() {
         return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     @Override

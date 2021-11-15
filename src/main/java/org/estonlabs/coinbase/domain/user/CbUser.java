@@ -91,233 +91,117 @@ public class CbUser implements Named {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @Override
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getResource() {
         return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
     }
 
     public String getState() {
         return state;
     }
 
-    public void setState(String state) {
-        this.state = state;
-    }
-
     public Object getNationality() {
         return nationality;
-    }
-
-    public void setNationality(Object nationality) {
-        this.nationality = nationality;
     }
 
     public CbCountry getCountry() {
         return country;
     }
 
-    public void setCountry(CbCountry country) {
-        this.country = country;
-    }
-
     public Object getProfileLocation() {
         return profileLocation;
-    }
-
-    public void setProfileLocation(Object profileLocation) {
-        this.profileLocation = profileLocation;
     }
 
     public String getProfileBio() {
         return profileBio;
     }
 
-    public void setProfileBio(String profileBio) {
-        this.profileBio = profileBio;
-    }
-
     public String getProfileUrl() {
         return profileUrl;
-    }
-
-    public void setProfileUrl(String profileUrl) {
-        this.profileUrl = profileUrl;
     }
 
     public String getAvatarUrl() {
         return avatarUrl;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
-
     public String getLegacy_id() {
         return legacy_id;
-    }
-
-    public void setLegacy_id(String legacy_id) {
-        this.legacy_id = legacy_id;
     }
 
     public String getResourcePath() {
         return resourcePath;
     }
 
-    public void setResourcePath(String resourcePath) {
-        this.resourcePath = resourcePath;
-    }
-
     public String getTimeZone() {
         return timeZone;
-    }
-
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
     }
 
     public String getNativeCurrency() {
         return nativeCurrency;
     }
 
-    public void setNativeCurrency(String nativeCurrency) {
-        this.nativeCurrency = nativeCurrency;
-    }
-
     public String getBitcoinUnit() {
         return bitcoinUnit;
-    }
-
-    public void setBitcoinUnit(String bitcoinUnit) {
-        this.bitcoinUnit = bitcoinUnit;
     }
 
     public boolean isRegionSupportsFiatTransfers() {
         return regionSupportsFiatTransfers;
     }
 
-    public void setRegionSupportsFiatTransfers(boolean regionSupportsFiatTransfers) {
-        this.regionSupportsFiatTransfers = regionSupportsFiatTransfers;
-    }
-
     public boolean isRegionSupportsCrypto2CryptoTransfers() {
         return regionSupportsCrypto2CryptoTransfers;
-    }
-
-    public void setRegionSupportsCrypto2CryptoTransfers(boolean regionSupportsCrypto2CryptoTransfers) {
-        this.regionSupportsCrypto2CryptoTransfers = regionSupportsCrypto2CryptoTransfers;
     }
 
     public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Date getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public boolean isSupportsRewards() {
         return supportsRewards;
     }
 
-    public void setSupportsRewards(boolean supportsRewards) {
-        this.supportsRewards = supportsRewards;
-    }
-
     public CbTiers getTiers() {
         return tiers;
-    }
-
-    public void setTiers(CbTiers tiers) {
-        this.tiers = tiers;
     }
 
     public boolean isHasBlockingBuyRestrictions() {
         return hasBlockingBuyRestrictions;
     }
 
-    public void setHasBlockingBuyRestrictions(boolean hasBlockingBuyRestrictions) {
-        this.hasBlockingBuyRestrictions = hasBlockingBuyRestrictions;
-    }
-
     public boolean isHasMadePurchase() {
         return hasMadePurchase;
-    }
-
-    public void setHasMadePurchase(boolean hasMadePurchase) {
-        this.hasMadePurchase = hasMadePurchase;
     }
 
     public boolean isHasBuyDepositPaymentMethods() {
         return hasBuyDepositPaymentMethods;
     }
 
-    public void setHasBuyDepositPaymentMethods(boolean hasBuyDepositPaymentMethods) {
-        this.hasBuyDepositPaymentMethods = hasBuyDepositPaymentMethods;
-    }
-
     public boolean isHasVerifiedBuyDepositPaymentMethods() {
         return hasVerifiedBuyDepositPaymentMethods;
-    }
-
-    public void setHasVerifiedBuyDepositPaymentMethods(boolean hasVerifiedBuyDepositPaymentMethods) {
-        this.hasVerifiedBuyDepositPaymentMethods = hasVerifiedBuyDepositPaymentMethods;
     }
 
     public boolean isNeedsKycRemediation() {
         return needsKycRemediation;
     }
 
-    public void setNeedsKycRemediation(boolean needsKycRemediation) {
-        this.needsKycRemediation = needsKycRemediation;
-    }
-
     public boolean isShowInstantAchUx() {
         return showInstantAchUx;
     }
 
-    public void setShowInstantAchUx(boolean showInstantAchUx) {
-        this.showInstantAchUx = showInstantAchUx;
-    }
-
     public String getUserType() {
         return userType;
-    }
-
-    public void setUserType(String userType) {
-        this.userType = userType;
     }
 
     @Override

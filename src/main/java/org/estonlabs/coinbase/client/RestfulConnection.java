@@ -1,6 +1,7 @@
 package org.estonlabs.coinbase.client;
 
 import javax.ws.rs.client.Client;
+import java.util.Map;
 
 public interface RestfulConnection {
     void setLogJsonMessages(boolean b);
@@ -9,9 +10,11 @@ public interface RestfulConnection {
 
     <T> T get(Class<T> responseType, String path);
 
-    <T> T get(Class<T> responseType, String path, String parameter);
+    public <T> T get(Class<T> responseType, String path, Map<String, String> params);
 
     <T, I> T put(Class<T> responseType, String path,  I jsonObj);
 
-    <T, I> T put(Class<T> responseType, String path,  String parameter, I jsonObj);
+     boolean delete(String path);
+
+     void reconnect();
 }

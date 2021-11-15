@@ -75,19 +75,9 @@ public class CbPaymentMethod {
         return id;
     }
 
-    @JsonProperty("id")
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonProperty("type")
     public String getType() {
         return type;
-    }
-
-    @JsonProperty("type")
-    public void setType(String type) {
-        this.type = type;
     }
 
     @JsonProperty("name")
@@ -95,19 +85,9 @@ public class CbPaymentMethod {
         return name;
     }
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @JsonProperty("currency")
     public String getCurrency() {
         return currency;
-    }
-
-    @JsonProperty("currency")
-    public void setCurrency(String currency) {
-        this.currency = currency;
     }
 
     @JsonProperty("primary_buy")
@@ -115,19 +95,9 @@ public class CbPaymentMethod {
         return primaryBuy;
     }
 
-    @JsonProperty("primary_buy")
-    public void setPrimaryBuy(Boolean primaryBuy) {
-        this.primaryBuy = primaryBuy;
-    }
-
     @JsonProperty("primary_sell")
     public Boolean getPrimarySell() {
         return primarySell;
-    }
-
-    @JsonProperty("primary_sell")
-    public void setPrimarySell(Boolean primarySell) {
-        this.primarySell = primarySell;
     }
 
     @JsonProperty("instant_buy")
@@ -135,19 +105,9 @@ public class CbPaymentMethod {
         return instantBuy;
     }
 
-    @JsonProperty("instant_buy")
-    public void setInstantBuy(Boolean instantBuy) {
-        this.instantBuy = instantBuy;
-    }
-
     @JsonProperty("instant_sell")
     public Boolean getInstantSell() {
         return instantSell;
-    }
-
-    @JsonProperty("instant_sell")
-    public void setInstantSell(Boolean instantSell) {
-        this.instantSell = instantSell;
     }
 
     @JsonProperty("created_at")
@@ -155,19 +115,9 @@ public class CbPaymentMethod {
         return createdAt;
     }
 
-    @JsonProperty("created_at")
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
     @JsonProperty("updated_at")
     public String getUpdatedAt() {
         return updatedAt;
-    }
-
-    @JsonProperty("updated_at")
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     @JsonProperty("resource")
@@ -175,19 +125,9 @@ public class CbPaymentMethod {
         return resource;
     }
 
-    @JsonProperty("resource")
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
     @JsonProperty("resource_path")
     public String getResourcePath() {
         return resourcePath;
-    }
-
-    @JsonProperty("resource_path")
-    public void setResourcePath(String resourcePath) {
-        this.resourcePath = resourcePath;
     }
 
     @JsonProperty("allow_buy")
@@ -195,19 +135,9 @@ public class CbPaymentMethod {
         return allowBuy;
     }
 
-    @JsonProperty("allow_buy")
-    public void setAllowBuy(Boolean allowBuy) {
-        this.allowBuy = allowBuy;
-    }
-
     @JsonProperty("allow_sell")
     public Boolean getAllowSell() {
         return allowSell;
-    }
-
-    @JsonProperty("allow_sell")
-    public void setAllowSell(Boolean allowSell) {
-        this.allowSell = allowSell;
     }
 
     @JsonProperty("allow_deposit")
@@ -215,19 +145,9 @@ public class CbPaymentMethod {
         return allowDeposit;
     }
 
-    @JsonProperty("allow_deposit")
-    public void setAllowDeposit(Boolean allowDeposit) {
-        this.allowDeposit = allowDeposit;
-    }
-
     @JsonProperty("allow_withdraw")
     public Boolean getAllowWithdraw() {
         return allowWithdraw;
-    }
-
-    @JsonProperty("allow_withdraw")
-    public void setAllowWithdraw(Boolean allowWithdraw) {
-        this.allowWithdraw = allowWithdraw;
     }
 
     @JsonProperty("fiat_account")
@@ -235,29 +155,14 @@ public class CbPaymentMethod {
         return fiatAccount;
     }
 
-    @JsonProperty("fiat_account")
-    public void setFiatAccount(CbAccountRef fiatAccount) {
-        this.fiatAccount = fiatAccount;
-    }
-
     @JsonProperty("verified")
     public Boolean getVerified() {
         return verified;
     }
 
-    @JsonProperty("verified")
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
-    }
-
     @JsonProperty("minimum_purchase_amount")
     public CbMinimumPurchaseAmount getMinimumPurchaseAmount() {
         return minimumPurchaseAmount;
-    }
-
-    @JsonProperty("minimum_purchase_amount")
-    public void setMinimumPurchaseAmount(CbMinimumPurchaseAmount minimumPurchaseAmount) {
-        this.minimumPurchaseAmount = minimumPurchaseAmount;
     }
 
     @Override

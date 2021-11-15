@@ -1,4 +1,4 @@
-package org.estonlabs.coinbase.client;
+package org.estonlabs.coinbase.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

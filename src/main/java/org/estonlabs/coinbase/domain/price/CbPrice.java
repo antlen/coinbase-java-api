@@ -1,5 +1,4 @@
-package org.estonlabs.coinbase.domain.transaction;
-
+package org.estonlabs.coinbase.domain.price;
 
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,15 +8,20 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "amount",
-        "currency"
+        "currency",
+        "base"
 })
 @Generated("jsonschema2pojo")
-public class CbMinimumPurchaseAmount {
+public class CbPrice {
+
+    private PriceType type;
 
     @JsonProperty("amount")
     private String amount;
     @JsonProperty("currency")
     private String currency;
+    @JsonProperty("base")
+    private String base;
 
     @JsonProperty("amount")
     public String getAmount() {
@@ -29,11 +33,16 @@ public class CbMinimumPurchaseAmount {
         return currency;
     }
 
-    @Override
-    public String toString() {
-        return "CbMinimumPurchaseAmount{" +
-                "amount='" + amount + '\'' +
-                ", currency='" + currency + '\'' +
-                '}';
+    @JsonProperty("base")
+    public String getBase() {
+        return base;
+    }
+
+    public PriceType getType() {
+        return type;
+    }
+
+    public void setType(PriceType type) {
+        this.type = type;
     }
 }

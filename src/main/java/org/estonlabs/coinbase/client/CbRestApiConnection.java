@@ -2,49 +2,83 @@ package org.estonlabs.coinbase.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.estonlabs.coinbase.CbApiException;
 import org.estonlabs.coinbase.client.auth.AuthFilter;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.*;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Map;
 
 public class CbRestApiConnection implements RestfulConnection {
 
     private final EndPoint endPoint;
     private volatile LoggingClientResponseFilter responseLogger;
-    private final Client client;
+    private Client client;
     private final boolean isSandbox;
+    private final ClientRequestAuthFilter authFilter;
 
     CbRestApiConnection(AuthFilter auth, EndPoint endPoint, boolean isSandbox){
         this.endPoint=endPoint;
-        this.client = ClientBuilder.newClient();;
-        client.register(new ClientRequestAuthFilter(auth));
+        this.authFilter = new ClientRequestAuthFilter(auth);
         this.isSandbox=isSandbox;
+        reconnect();
     }
 
     @Override
-    public <T> T get(Class<T> responseType, String path, String parameter){
-        Invocation.Builder request = client.target(endPoint.getEndPoint())
-                .path(endPoint.adaptPath(path, parameter))
-                .request(MediaType.APPLICATION_JSON);
-        return request.get(responseType);
+    public void reconnect() {
+        if(client!= null){
+            try{
+                client.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        boolean log = responseLogger==null?false: responseLogger.isEnabled();
+        responseLogger = null;
+        this.client = ClientBuilder.newClient();;
+        client.register(authFilter);
+        setLogJsonMessages(log);
     }
 
     @Override
-    public <T, I> T put(Class<T> responseType, String path, String parameter, I jsonObj) {
+    public <T> T get(Class<T> responseType, String path) {
+        return get(responseType,path,null);
+    }
+
+    @Override
+    public <T> T get(Class<T> responseType, String path, Map<String, String> params){
+        WebTarget target = client.target(endPoint.getEndPoint());
+
+        if(params !=null){
+            for(Map.Entry<String, String> e : params.entrySet()){
+                target = target.queryParam(e.getKey(), e.getValue());
+            }
+        }
+        target = target.path(endPoint.adaptPath(path));
+        return target.request(MediaType.APPLICATION_JSON).get(responseType);
+    }
+
+
+    @Override
+    public <T, I> T put(Class<T> responseType, String path, I jsonObj) {
         Entity<Object> entity = Entity.json(jsonObj);
         WebTarget target = client.target(endPoint.getEndPoint());
         Invocation.Builder request = target
-                .path(endPoint.adaptPath(path, parameter))
+                .path(endPoint.adaptPath(path))
                 .request(MediaType.APPLICATION_JSON);
 
         return request.put(entity, responseType);
     }
 
     @Override
-    public <T, I> T put(Class<T> responseType, String path, I jsonObj) {
-        return put(responseType, path, null, jsonObj);
+    public boolean delete(String path){
+        Invocation.Builder request = client.target(endPoint.getEndPoint())
+                .path(endPoint.adaptPath(path))
+                .request(MediaType.APPLICATION_JSON);
+        return request.delete().getStatusInfo().toEnum() == Response.Status.NO_CONTENT;
     }
 
 /**
@@ -64,15 +98,13 @@ public class CbRestApiConnection implements RestfulConnection {
             responseLogger = new LoggingClientResponseFilter();
             client.register(responseLogger);
         }
-        responseLogger.setEnabled(b);
+        if(responseLogger !=null){
+            responseLogger.setEnabled(b);
+        }
     }
 
     public boolean isSandbox() {
         return isSandbox;
-    }
-
-    public <T> T get(Class<T> responseType, String path){
-        return get(responseType, path, null);
     }
 
     public void close(){
@@ -94,6 +126,7 @@ public class CbRestApiConnection implements RestfulConnection {
                 if(CbRestApiConnection.this.responseLogger.isEnabled()){
                     System.out.println(ctx.getUri().toString());
                 }
+
                 if(ctx.hasEntity()){
                     ObjectMapper om = new ObjectMapper();
                     body = om.writeValueAsString(ctx.getEntity());
@@ -101,10 +134,11 @@ public class CbRestApiConnection implements RestfulConnection {
                         System.out.println(body);
                     }
                 }
-                authFilter.addAuthHeaders(headers, ctx.getUri().getPath(), ctx.getMethod(), body);
+                authFilter.addAuthHeaders(headers, ctx.getUri(), ctx.getMethod(), body);
             } catch (JsonProcessingException e) {
                 throw new CbApiException(e.getMessage(), e);
             }
         }
+
     }
 }

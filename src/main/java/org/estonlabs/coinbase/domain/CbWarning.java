@@ -26,29 +26,14 @@ public class CbWarning {
         return id;
     }
 
-    @JsonProperty("id")
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonProperty("message")
     public String getMessage() {
         return message;
     }
 
-    @JsonProperty("message")
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     @JsonProperty("url")
     public String getUrl() {
         return url;
-    }
-
-    @JsonProperty("url")
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     @Override

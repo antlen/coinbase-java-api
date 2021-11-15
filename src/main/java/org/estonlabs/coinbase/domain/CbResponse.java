@@ -3,10 +3,10 @@ package org.estonlabs.coinbase.domain;
 
 import java.util.List;
 
-public class CbDataProvider<T> implements DataProvider<T>{
+public class CbResponse<T> implements Response<T> {
 
-    T data;
-    List<CbWarning> warnings;
+    private T data;
+    private List<CbWarning> warnings;
 
     @Override
     public T getData() {

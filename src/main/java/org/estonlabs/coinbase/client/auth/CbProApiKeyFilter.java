@@ -1,10 +1,11 @@
 package org.estonlabs.coinbase.client.auth;
 
-import org.estonlabs.coinbase.client.CbApiException;
+import org.estonlabs.coinbase.CbApiException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.core.MultivaluedMap;
+import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -39,7 +40,7 @@ public class CbProApiKeyFilter implements AuthFilter {
     }
 
     @Override
-    public void addAuthHeaders(MultivaluedMap<String, Object> headers, String path, String method, String body) {
+    public void addAuthHeaders(MultivaluedMap<String, Object> headers, URI path, String method, String body) {
         String timestamp = Long.toString(Instant.now().getEpochSecond());
         headers.add("accept", "application/json");
         headers.add("content-type", "application/json");
@@ -47,6 +48,6 @@ public class CbProApiKeyFilter implements AuthFilter {
         headers.add("CB-ACCESS-TIMESTAMP", timestamp);
         headers.add("CB-VERSION", API_DATE);
         headers.add("CB-ACCESS-PASSPHRASE", passphrase);
-        headers.add("CB-ACCESS-SIGN", generateSign(timestamp,path, method));
+        headers.add("CB-ACCESS-SIGN", generateSign(timestamp,path.getPath(), method));
     }
 }

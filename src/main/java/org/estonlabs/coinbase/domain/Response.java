@@ -1,5 +1,5 @@
 package org.estonlabs.coinbase.domain;
 
-public interface DataProvider<T> {
+public interface Response<T> {
     T getData();
 }

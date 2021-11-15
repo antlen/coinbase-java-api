@@ -21,32 +21,16 @@ public class CbTiers {
         return completedDescription;
     }
 
-    public void setCompletedDescription(String completedDescription) {
-        this.completedDescription = completedDescription;
-    }
-
     public String getUpgradeButtonText() {
         return upgradeButtonText;
-    }
-
-    public void setUpgradeButtonText(String upgradeButtonText) {
-        this.upgradeButtonText = upgradeButtonText;
     }
 
     public Object getHeader() {
         return header;
     }
 
-    public void setHeader(Object header) {
-        this.header = header;
-    }
-
     public Object getBody() {
         return body;
-    }
-
-    public void setBody(Object body) {
-        this.body = body;
     }
 
     @Override

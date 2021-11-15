@@ -21,32 +21,16 @@ public class CbReferralMoney {
         return amount;
     }
 
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
     public String getCurrency() {
         return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
     }
 
     public String getCurrencySymbol() {
         return currencySymbol;
     }
 
-    public void setCurrencySymbol(String currencySymbol) {
-        this.currencySymbol = currencySymbol;
-    }
-
     public String getReferralThreshold() {
         return referralThreshold;
-    }
-
-    public void setReferralThreshold(String referralThreshold) {
-        this.referralThreshold = referralThreshold;
     }
 
     @Override
