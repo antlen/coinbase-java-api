@@ -133,6 +133,34 @@ Transfer bitcoin, bitcoin cash, litecoin or ethereum between two of a user’s a
  CbAddressTransaction transaction = client.transferMoney(b.build());`
 ```
 
+### Trading
+
+
+
+Places an order to the exchange but do not commit
+     
+```
+ CbOrderRequestBuilder b = CbOrderRequestBuilder.newBuy()
+                   .setPaymentMethod(pm).setCommit(commit)
+                   .setFrom(from).setAmount(amount).setCurrency(currency)
+                   .setCommit(false);
+CbTrade trade client.placeOrder(CbOrderRequest request);
+```
+And then to commit:
+
+```
+CbTrade committed = client.commitOrder(trade);
+```
+Or just set commit to true to commit straight away
+
+```
+ CbOrderRequestBuilder b = CbOrderRequestBuilder.newBuy()
+                   .setPaymentMethod(pm).setCommit(commit)
+                   .setFrom(from).setAmount(amount).setCurrency(currency)
+                   .setCommit(true);
+CbTrade trade client.placeOrder(CbOrderRequest request);
+```
+
 ## Related
 
 [coinbase-java-cmdln-app](https://github.com/antlen/coinbase-java-cmdln-app) :A command line app for runinng api calls.
