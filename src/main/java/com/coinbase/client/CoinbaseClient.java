@@ -205,10 +205,16 @@ public interface CoinbaseClient {
     List<CbCurrencyCode> getCurrencyCodes();
 
     /**
-     * get the echange rates for BTC/
+     * get the exchange rates
      * @return
      */
-    CbExchangeRate getBTCExchangeRate();
+    CbExchangeRate getExchangeRate(String base);
+
+    /**
+     * get the exchange rates, defaults to USD.
+     * @return
+     */
+    CbExchangeRate getExchangeRate();
 
     /**
      * Send funds to a bitcoin address, bitcoin cash address, litecoin address, ethereum address,

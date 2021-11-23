@@ -321,8 +321,15 @@ public class CoinbaseRestClient implements CoinbaseClient {
     }
 
     @Override
-    public CbExchangeRate getBTCExchangeRate() {
+    public CbExchangeRate getExchangeRate() {
         return get(CbExchangeRateResponse.class, EXCHANGE_RATES);
+    }
+
+    @Override
+    public CbExchangeRate getExchangeRate(String base) {
+        Map<String, String> m = new HashMap<>();
+        m.put("currency", base);
+       return  restApi.get(CbExchangeRateResponse.class, EXCHANGE_RATES, m).getData();
     }
 
     private String toUri(String ... s){
