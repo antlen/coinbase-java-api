@@ -26,7 +26,7 @@ import java.util.*;
  *
  * ------------------------------------------------
  *
- * Takes N CbTrade or List<CbTrade> objects and returns as a unified collection
+ * Takes N CbTrade or List of CbTrade  objects and returns as a unified collection
  * @author antlen
  */
 public class CbTradeCollection {
