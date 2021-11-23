@@ -94,7 +94,10 @@ CbExchangeRate rates = client.getExchangeRate("BTC");
 ```
 
 Get the USD exchange rates
+
+```
 CbExchangeRate rates = client.getExchangeRate();
+```
 
 ### Money
 
