@@ -15,13 +15,22 @@ public class CbOrderRequestBuilder extends CbAmountRequestBuilder<CbOrderRequest
     private Boolean commit;
     private Boolean quote;
 
-    public Side getSide() {
-        return side;
+    public static CbOrderRequestBuilder newBuy() {
+        return new CbOrderRequestBuilder().setSide(Side.BUY);
+    }
+
+    public static CbOrderRequestBuilder newSell() {
+        return new CbOrderRequestBuilder().setSide(Side.SELL);
     }
 
     public CbOrderRequestBuilder setSide(Side side) {
         this.side = side;
         return this;
+    }
+
+
+    public Side getSide() {
+        return side;
     }
 
     public String getPaymentMethod() {
