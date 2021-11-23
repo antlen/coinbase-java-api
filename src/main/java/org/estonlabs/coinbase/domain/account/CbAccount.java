@@ -1,40 +1,43 @@
 package org.estonlabs.coinbase.domain.account;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.estonlabs.coinbase.domain.Named;
 import org.estonlabs.coinbase.domain.price.CbCurrency;
 
 import javax.annotation.Generated;
 import java.util.Date;
 
 @Generated("jsonschema2pojo")
-public class CbAccount implements Named {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CbAccount {
 
+    @JsonProperty("id")
     private String id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("primary")
     private Boolean primary;
+    @JsonProperty("type")
     private String type;
+    @JsonProperty("currency")
     private CbCurrency currency;
+    @JsonProperty("balance")
     private CbBalance balance;
+    @JsonProperty("resource")
     private String resource;
+    @JsonProperty("rewards")
     private CbRewards rewards;
-
     @JsonProperty("created_at")
     private Date createdAt;
-
     @JsonProperty("updated_at")
     private Date updatedAt;
-
     @JsonProperty("resource_path")
     private String resourcePath;
-
     @JsonProperty("allow_deposits")
     private boolean allowDeposits;
-
     @JsonProperty("allow_withdrawals")
-    private boolean alloWithdrawals;
-
+    private boolean allowWithdrawals;
     @JsonProperty("rewards_apy")
     private String rewardsApy;
 
@@ -42,7 +45,6 @@ public class CbAccount implements Named {
         return id;
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -87,8 +89,8 @@ public class CbAccount implements Named {
         return allowDeposits;
     }
 
-    public boolean isAlloWithdrawals() {
-        return alloWithdrawals;
+    public boolean isAllowWithdrawals() {
+        return allowWithdrawals;
     }
 
     public String isRewardsApy() {
@@ -110,7 +112,7 @@ public class CbAccount implements Named {
                 ", updatedAt=" + updatedAt +
                 ", resourcePath='" + resourcePath + '\'' +
                 ", allowDeposits=" + allowDeposits +
-                ", alloWithdrawals=" + alloWithdrawals +
+                ", alloWithdrawals=" + allowWithdrawals +
                 ", rewardsApy='" + rewardsApy + '\'' +
                 '}';
     }

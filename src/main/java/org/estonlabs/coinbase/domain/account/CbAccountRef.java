@@ -1,5 +1,6 @@
 package org.estonlabs.coinbase.domain.account;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -13,6 +14,7 @@ import javax.annotation.Generated;
         "resource_path"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbAccountRef {
     @JsonProperty("id")
     private String id;

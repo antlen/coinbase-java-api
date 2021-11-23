@@ -1,6 +1,8 @@
 package org.estonlabs.coinbase.domain.system;
 
 import javax.annotation.Generated;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "epoch"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbTime {
 
     @JsonProperty("iso")
@@ -26,5 +29,13 @@ public class CbTime {
     @JsonProperty("epoch")
     public Integer getEpoch() {
         return epoch;
+    }
+
+    @Override
+    public String toString() {
+        return "CbTime{" +
+                "iso='" + iso + '\'' +
+                ", epoch=" + epoch +
+                '}';
     }
 }

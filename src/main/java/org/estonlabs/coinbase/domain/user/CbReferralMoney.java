@@ -1,29 +1,21 @@
 package org.estonlabs.coinbase.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.estonlabs.coinbase.domain.price.CbAmount;
 
 import javax.annotation.Generated;
 import java.util.Objects;
 
 @Generated("jsonschema2pojo")
-public class CbReferralMoney {
-
-    private String amount;
-    private String currency;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CbReferralMoney extends CbAmount {
 
     @JsonProperty("currency_symbol")
     private String currencySymbol;
 
     @JsonProperty("referral_threshold")
     private String referralThreshold;
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
 
     public String getCurrencySymbol() {
         return currencySymbol;
@@ -36,10 +28,8 @@ public class CbReferralMoney {
     @Override
     public String toString() {
         return "CbReferralMoney{" +
-                "amount='" + Objects.toString(amount) + '\'' +
-                ", currency='" + Objects.toString(currency) + '\'' +
-                ", currencySymbol='" + Objects.toString(currencySymbol) + '\'' +
-                ", referralThreshold='" + Objects.toString(referralThreshold) + '\'' +
+                "currencySymbol='" + currencySymbol + '\'' +
+                ", referralThreshold='" + referralThreshold + '\'' +
                 '}';
     }
 }

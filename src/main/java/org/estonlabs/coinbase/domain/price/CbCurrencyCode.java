@@ -1,6 +1,8 @@
 package org.estonlabs.coinbase.domain.price;
 
 import javax.annotation.Generated;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "min_size"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbCurrencyCode {
 
     @JsonProperty("id")
@@ -34,5 +37,14 @@ public class CbCurrencyCode {
     @JsonProperty("min_size")
     public String getMinSize() {
         return minSize;
+    }
+
+    @Override
+    public String toString() {
+        return "CbCurrencyCode{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", minSize='" + minSize + '\'' +
+                '}';
     }
 }

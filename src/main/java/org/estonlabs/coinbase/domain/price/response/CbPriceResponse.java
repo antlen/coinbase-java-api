@@ -1,8 +1,9 @@
 package org.estonlabs.coinbase.domain.price.response;
 
-import org.estonlabs.coinbase.domain.CbResponse;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.estonlabs.coinbase.domain.general.response.CbResponse;
 import org.estonlabs.coinbase.domain.price.CbPrice;
-import org.estonlabs.coinbase.domain.system.CbTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbPriceResponse extends CbResponse<CbPrice> {
 }

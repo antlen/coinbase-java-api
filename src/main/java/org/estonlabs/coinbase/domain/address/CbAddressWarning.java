@@ -2,10 +2,12 @@ package org.estonlabs.coinbase.domain.address;
 
 import java.util.List;
 import javax.annotation.Generated;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.estonlabs.coinbase.domain.CbOption;
+import org.estonlabs.coinbase.domain.general.CbOption;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -16,6 +18,7 @@ import org.estonlabs.coinbase.domain.CbOption;
         "options"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbAddressWarning {
 
     @JsonProperty("type")
@@ -52,5 +55,16 @@ public class CbAddressWarning {
     @JsonProperty("options")
     public List<CbOption> getOptions() {
         return options;
+    }
+
+    @Override
+    public String toString() {
+        return "CbAddressWarning{" +
+                "type='" + type + '\'' +
+                ", title='" + title + '\'' +
+                ", details='" + details + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", options=" + options +
+                '}';
     }
 }

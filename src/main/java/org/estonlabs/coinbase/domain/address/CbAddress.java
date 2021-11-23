@@ -1,6 +1,8 @@
 package org.estonlabs.coinbase.domain.address;
 import java.util.List;
 import javax.annotation.Generated;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "callback_url"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbAddress {
 
     @JsonProperty("id")
@@ -114,5 +117,24 @@ public class CbAddress {
     @JsonProperty("callback_url")
     public Object getCallbackUrl() {
         return callbackUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "CbAddress{" +
+                "id='" + id + '\'' +
+                ", address='" + address + '\'' +
+                ", addressInfo=" + addressInfo +
+                ", name='" + name + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", network='" + network + '\'' +
+                ", uriScheme='" + uriScheme + '\'' +
+                ", resource='" + resource + '\'' +
+                ", resourcePath='" + resourcePath + '\'' +
+                ", warnings=" + warnings +
+                ", depositUri='" + depositUri + '\'' +
+                ", callbackUrl=" + callbackUrl +
+                '}';
     }
 }

@@ -1,30 +1,28 @@
 package org.estonlabs.coinbase.domain.pagination;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Generated;
 
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbPagination {
+    @JsonProperty("limit")
     private Integer limit;
+    @JsonProperty("order")
     private String order;
-
     @JsonProperty("ending_before")
     private String endingBefore;
-
     @JsonProperty("starting_after")
     private String startingAfter;
-
     @JsonProperty("previous_ending_before")
     private String previousEndingBefore;
-
     @JsonProperty("next_starting_after")
     private String nextStartingAfter;
-
     @JsonProperty("next_uri")
     private String nextUri;
-
     @JsonProperty("previous_uri")
     private String previousUri;
 

@@ -1,9 +1,8 @@
 package org.estonlabs.coinbase.domain.price;
 
 import javax.annotation.Generated;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import com.fasterxml.jackson.annotation.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -12,26 +11,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "base"
 })
 @Generated("jsonschema2pojo")
-public class CbPrice {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CbPrice extends CbAmount{
 
+    @JsonIgnore
     private PriceType type;
 
-    @JsonProperty("amount")
-    private String amount;
-    @JsonProperty("currency")
-    private String currency;
     @JsonProperty("base")
     private String base;
-
-    @JsonProperty("amount")
-    public String getAmount() {
-        return amount;
-    }
-
-    @JsonProperty("currency")
-    public String getCurrency() {
-        return currency;
-    }
 
     @JsonProperty("base")
     public String getBase() {
@@ -42,7 +29,8 @@ public class CbPrice {
         return type;
     }
 
-    public void setType(PriceType type) {
+    public CbPrice setType(PriceType type) {
         this.type = type;
+        return this;
     }
 }

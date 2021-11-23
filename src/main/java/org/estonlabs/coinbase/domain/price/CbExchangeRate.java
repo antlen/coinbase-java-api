@@ -1,6 +1,8 @@
 package org.estonlabs.coinbase.domain.price;
 
 import javax.annotation.Generated;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -14,6 +16,7 @@ import java.util.Map;
         "rates"
 })
 @Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbExchangeRate {
 
     @JsonProperty("currency")
@@ -34,5 +37,13 @@ public class CbExchangeRate {
     @JsonProperty("rates")
     public Map<String,Double>  getRates() {
         return Collections.unmodifiableMap(rates);
+    }
+
+    @Override
+    public String toString() {
+        return "CbExchangeRate{" +
+                "currency='" + currency + '\'' +
+                ", rates=" + rates +
+                '}';
     }
 }

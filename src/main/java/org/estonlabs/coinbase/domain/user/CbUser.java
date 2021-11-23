@@ -1,89 +1,76 @@
 package org.estonlabs.coinbase.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.estonlabs.coinbase.domain.CbCountry;
-import org.estonlabs.coinbase.domain.CbTiers;
-import org.estonlabs.coinbase.domain.Named;
+import org.estonlabs.coinbase.domain.general.CbCountry;
+import org.estonlabs.coinbase.domain.general.CbTiers;
 
 import java.util.Date;
 import java.util.Objects;
 import javax.annotation.Generated;
 
 @Generated("jsonschema2pojo")
-public class CbUser implements Named {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CbUser{
 
+    @JsonProperty("id")
     private String id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("username")
     private String username;
+    @JsonProperty("resource")
     private String resource;
+    @JsonProperty("state")
     private String state;
+    @JsonProperty("nationality")
     private Object nationality;
+    @JsonProperty("country")
     private CbCountry country;
+    @JsonProperty("tiers")
     private CbTiers tiers;
-
     @JsonProperty("profile_location")
     private Object profileLocation;
-
     @JsonProperty("profile_bio")
     private String profileBio;
-
     @JsonProperty("profile_url")
     private String profileUrl;
-
     @JsonProperty("avatar_url")
     private String avatarUrl;
-
     @JsonProperty("legacy_id")
     private String legacy_id;
-
     @JsonProperty("resource_path")
     private String resourcePath;
-
     @JsonProperty("time_zone")
     private String timeZone;
-
     @JsonProperty("native_currency")
     private String nativeCurrency;
-
     @JsonProperty("bitcoin_unit")
     private String bitcoinUnit;
-
     @JsonProperty("region_supports_fiat_transfers")
     private boolean regionSupportsFiatTransfers;
-
     @JsonProperty("region_supports_crypto_to_crypto_transfers")
     private boolean regionSupportsCrypto2CryptoTransfers;
-
     @JsonProperty("created_at")
     protected Date createdAt;
-
     @JsonProperty("updated_at")
     protected Date updatedAt;
-
     @JsonProperty("supports_rewards")
     private boolean supportsRewards;
-
     @JsonProperty("has_blocking_buy_restrictions")
     private boolean hasBlockingBuyRestrictions;
-
     @JsonProperty("has_made_a_purchase")
     private boolean hasMadePurchase;
-
     @JsonProperty("has_buy_deposit_payment_methods")
     private boolean hasBuyDepositPaymentMethods;
-
     @JsonProperty("has_unverified_buy_deposit_payment_methods")
     private boolean hasVerifiedBuyDepositPaymentMethods;
-
     @JsonProperty("needs_kyc_remediation")
     private boolean needsKycRemediation;
-
     @JsonProperty("show_instant_ach_ux")
     private boolean showInstantAchUx;
-
     @JsonProperty("user_type")
     private String userType;
-
     @JsonProperty("referral_money")
     private CbReferralMoney referralMoney;
 
@@ -91,7 +78,6 @@ public class CbUser implements Named {
         return id;
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -222,36 +208,36 @@ public class CbUser implements Named {
     @Override
     public String toString() {
         return "CbUser{" +
-                "id='" + Objects.toString(id) + '\'' +
-                ", name='" + Objects.toString(name) + '\'' +
-                ", username='" + Objects.toString(username) + '\'' +
-                ", resource='" + Objects.toString(resource) + '\'' +
-                ", state='" + Objects.toString(state) + '\'' +
-                ", nationality=" + Objects.toString(nationality) +
-                ", country=" + Objects.toString(country) +
-                ", tiers=" + Objects.toString(tiers) +
-                ", profileLocation=" + Objects.toString(profileLocation) +
-                ", profileBio='" + Objects.toString(profileBio) + '\'' +
-                ", profileUrl='" + Objects.toString(profileUrl) + '\'' +
-                ", avatarUrl='" + Objects.toString(avatarUrl) + '\'' +
-                ", legacy_id='" + Objects.toString(legacy_id) + '\'' +
-                ", resourcePath='" + Objects.toString(resourcePath) + '\'' +
-                ", timeZone='" + Objects.toString(timeZone) + '\'' +
-                ", nativeCurrency='" + Objects.toString(nativeCurrency) + '\'' +
-                ", bitcoinUnit='" + Objects.toString(bitcoinUnit) + '\'' +
-                ", regionSupportsFiatTransfers=" + Objects.toString(regionSupportsFiatTransfers) +
-                ", regionSupportsCrypto2CryptoTransfers=" + Objects.toString(regionSupportsCrypto2CryptoTransfers) +
-                ", createdAt=" + Objects.toString(createdAt) +
-                ", updatedAt=" + Objects.toString(updatedAt) +
-                ", supportsRewards=" + Objects.toString(supportsRewards) +
-                ", hasBlockingBuyRestrictions=" + Objects.toString(hasBlockingBuyRestrictions) +
-                ", hasMadePurchase=" + Objects.toString(hasMadePurchase) +
-                ", hasBuyDepositPaymentMethods=" + Objects.toString(hasBuyDepositPaymentMethods) +
-                ", hasVerifiedBuyDepositPaymentMethods=" + Objects.toString(hasVerifiedBuyDepositPaymentMethods) +
-                ", needsKycRemediation=" + Objects.toString(needsKycRemediation) +
-                ", showInstantAchUx=" + Objects.toString(showInstantAchUx) +
-                ", userType='" + Objects.toString(userType) + '\'' +
-                ", referralMoney=" + Objects.toString(referralMoney) +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", resource='" + resource + '\'' +
+                ", state='" + state + '\'' +
+                ", nationality=" + nationality +
+                ", country=" + country +
+                ", tiers=" + tiers +
+                ", profileLocation=" + profileLocation +
+                ", profileBio='" + profileBio + '\'' +
+                ", profileUrl='" + profileUrl + '\'' +
+                ", avatarUrl='" + avatarUrl + '\'' +
+                ", legacy_id='" + legacy_id + '\'' +
+                ", resourcePath='" + resourcePath + '\'' +
+                ", timeZone='" + timeZone + '\'' +
+                ", nativeCurrency='" + nativeCurrency + '\'' +
+                ", bitcoinUnit='" + bitcoinUnit + '\'' +
+                ", regionSupportsFiatTransfers=" + regionSupportsFiatTransfers +
+                ", regionSupportsCrypto2CryptoTransfers=" + regionSupportsCrypto2CryptoTransfers +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", supportsRewards=" + supportsRewards +
+                ", hasBlockingBuyRestrictions=" + hasBlockingBuyRestrictions +
+                ", hasMadePurchase=" + hasMadePurchase +
+                ", hasBuyDepositPaymentMethods=" + hasBuyDepositPaymentMethods +
+                ", hasVerifiedBuyDepositPaymentMethods=" + hasVerifiedBuyDepositPaymentMethods +
+                ", needsKycRemediation=" + needsKycRemediation +
+                ", showInstantAchUx=" + showInstantAchUx +
+                ", userType='" + userType + '\'' +
+                ", referralMoney=" + referralMoney +
                 '}';
     }
 }

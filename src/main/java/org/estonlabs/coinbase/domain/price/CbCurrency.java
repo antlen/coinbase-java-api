@@ -1,29 +1,30 @@
 package org.estonlabs.coinbase.domain.price;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Objects;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CbCurrency {
+    @JsonProperty("code")
     private String code;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("type")
     private String type;
+    @JsonProperty("color")
     private String color;
+    @JsonProperty("exponent")
     private Integer exponent;
+    @JsonProperty("slug")
     private String slug;
-
     @JsonProperty("sort_index")
     private Integer sortIndex;
-
     @JsonProperty("address_regex")
     private String addressRegex;
-
     @JsonProperty("asset_id")
     private String assetId;
-
     @JsonProperty("destination_tag_name")
     private String destinationTagName;
-
     @JsonProperty("destination_tag_regex")
     private String destinationTagRegex;
 
@@ -74,17 +75,17 @@ public class CbCurrency {
     @Override
     public String toString() {
         return "CbCurrency{" +
-                "code='" + Objects.toString(code) + '\'' +
-                ", name='" + Objects.toString(name) + '\'' +
-                ", type='" + Objects.toString(type) + '\'' +
-                ", color='" + Objects.toString(color) + '\'' +
-                ", exponent=" + Objects.toString(exponent) +
-                ", slug='" + Objects.toString(slug) + '\'' +
-                ", sortIndex=" + Objects.toString(sortIndex) +
-                ", addressRegex='" + Objects.toString(addressRegex) + '\'' +
-                ", assetId='" + Objects.toString(assetId) + '\'' +
-                ", destinationTagName='" + Objects.toString(destinationTagName) + '\'' +
-                ", destinationTagRegex='" + Objects.toString(destinationTagRegex) + '\'' +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", color='" + color + '\'' +
+                ", exponent=" + exponent +
+                ", slug='" + slug + '\'' +
+                ", sortIndex=" + sortIndex +
+                ", addressRegex='" + addressRegex + '\'' +
+                ", assetId='" + assetId + '\'' +
+                ", destinationTagName='" + destinationTagName + '\'' +
+                ", destinationTagRegex='" + destinationTagRegex + '\'' +
                 '}';
     }
 }
