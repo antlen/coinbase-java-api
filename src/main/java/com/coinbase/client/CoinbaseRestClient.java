@@ -2,7 +2,6 @@ package com.coinbase.client;
 
 import com.coinbase.client.connection.RestConnection;
 import com.coinbase.domain.account.CbAccount;
-import com.coinbase.domain.account.CbAuthInfo;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
 import com.coinbase.domain.account.response.CbAccountListResponse;
 import com.coinbase.domain.account.response.CbAccountResponse;
@@ -14,9 +13,7 @@ import com.coinbase.domain.trade.response.CbTradeListResponse;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
 import com.coinbase.domain.transaction.response.CbPaymentMethodListResponse;
 import com.coinbase.domain.transaction.response.CbPaymentMethodResponse;
-import com.coinbase.domain.user.response.CbAuthInfoResponse;
 import com.coinbase.domain.address.request.CbCreateAddressRequest;
-import org.estonlabs.coinbase.domain.trade.*;
 import com.coinbase.domain.trade.request.CbCashTransactionRequest;
 import com.coinbase.domain.trade.response.CbCashTransactionListResponse;
 import com.coinbase.domain.trade.response.CbCashTransactionResponse;
@@ -25,7 +22,6 @@ import com.coinbase.domain.address.response.CbAddressTransactionResponse;
 import com.coinbase.domain.address.CbAddress;
 import com.coinbase.domain.address.CbAddressTransaction;
 import com.coinbase.domain.address.response.CbAddressTransactionsResponse;
-import org.estonlabs.coinbase.domain.account.*;
 import com.coinbase.domain.address.response.CbAddressListResponse;
 import com.coinbase.domain.address.response.CbAddressResponse;
 import com.coinbase.domain.price.CbCurrencyCode;
@@ -130,15 +126,6 @@ public class CoinbaseRestClient implements CoinbaseClient {
         }catch(Exception e){
             throw new CbApiException("Something went wrong, it's likely user "
                     + userId+" does not exist.", e);
-        }
-    }
-
-    @Override
-    public CbAuthInfo getUserAuthInfo() {
-        try{
-            return get(CbAuthInfoResponse.class, AUTH);
-        }catch(Exception e){
-            throw new CbApiException("The AuthInfo is only available if logged in through Oath", e);
         }
     }
 

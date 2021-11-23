@@ -1,7 +1,6 @@
 package com.coinbase.client;
 
 import com.coinbase.domain.account.CbAccount;
-import com.coinbase.domain.account.CbAuthInfo;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
 import com.coinbase.domain.order.request.CbOrderRequest;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
@@ -70,13 +69,6 @@ public interface CoinbaseClient {
      * @return
      */
     CbUser getUser(String userId);
-
-    /**
-     * Get current user’s authorization information including granted scopes and send limits when using OAuth2 authentication.
-     *
-     * @return
-     */
-    CbAuthInfo getUserAuthInfo();
 
     /**
      * Lists current user’s payment methods.
