@@ -1,11 +1,20 @@
 # coinbase-java-api
 
+### Maven
+```
+        <dependency>
+            <groupId>org.estonlabs</groupId>
+            <artifactId>coinbase-java-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+```
+
 ## How to use
 
 ### Create a client 
 ``` 
 CoinbaseClientBuilder builder = new CoinbaseClientBuilder(apiKey, secret); 
-CoinbaseClient client = builder.create(); `
+CoinbaseClient client = builder.build(); `
 ```
 ### User
 
