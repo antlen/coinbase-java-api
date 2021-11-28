@@ -32,7 +32,7 @@ import com.coinbase.client.connection.auth.CoinbaseApiV2SecuredEndpoint;
  *
  * @author antlen
  */
-public class CoinbaseClientBuilder implements Builder<CoinbaseClient> {
+public class CoinbaseClientBuilder implements Builder<CoinbaseSyncClient> {
 
     private final String apiKey;
     private final byte[] secretKey;
@@ -50,7 +50,7 @@ public class CoinbaseClientBuilder implements Builder<CoinbaseClient> {
     }
 
     @Override
-    public CoinbaseClient build() {
+    public CoinbaseSyncClient build() {
         CoinbaseApiV2SecuredEndpoint endPoint = new CoinbaseApiV2SecuredEndpoint(apiKey, secretKey);
         CoinbaseRestConnection connection = new CoinbaseRestConnection(endPoint);
         return new CoinbaseSyncRestClient(connection, paginationLimit);

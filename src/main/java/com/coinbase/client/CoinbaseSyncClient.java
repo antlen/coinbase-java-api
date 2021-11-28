@@ -53,7 +53,7 @@ import java.util.List;
  *
  * @author antlen
  */
-public interface CoinbaseClient {
+public interface CoinbaseSyncClient {
 
     /**
      * reestablish the connection.
@@ -68,7 +68,7 @@ public interface CoinbaseClient {
     /**
      * Clones the client
      */
-    CoinbaseClient clone();
+    CoinbaseSyncClient clone();
 
     /**
      * Turns on logginf og the raw JSON for every response.

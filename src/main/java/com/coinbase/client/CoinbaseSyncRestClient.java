@@ -42,7 +42,6 @@ import com.coinbase.domain.user.request.CbUserUpdateRequest;
 import com.coinbase.exception.CbApiHttpException;
 
 import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -79,7 +78,7 @@ import java.util.concurrent.Future;
  *
  * @author antlen
  */
-public class CoinbaseSyncRestClient implements CoinbaseClient {
+public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
     public static final String LIMIT = "limit";
     private static DateTimeFormatter PRICE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -153,7 +152,7 @@ public class CoinbaseSyncRestClient implements CoinbaseClient {
     }
 
     @Override
-    public CoinbaseClient clone() {
+    public CoinbaseSyncClient clone() {
         return new CoinbaseSyncRestClient(restApi.clone(),  Integer.parseInt(pageSizeStr));
     }
 
