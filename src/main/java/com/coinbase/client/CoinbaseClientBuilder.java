@@ -53,6 +53,6 @@ public class CoinbaseClientBuilder implements Builder<CoinbaseClient> {
     public CoinbaseClient build() {
         CoinbaseApiV2SecuredEndpoint endPoint = new CoinbaseApiV2SecuredEndpoint(apiKey, secretKey);
         CoinbaseRestConnection connection = new CoinbaseRestConnection(endPoint);
-        return new CoinbaseRestClient(connection, paginationLimit);
+        return new CoinbaseSyncRestClient(connection, paginationLimit);
     }
 }

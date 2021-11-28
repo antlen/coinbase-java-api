@@ -6,6 +6,7 @@ import com.coinbase.domain.general.CbResource;
 import com.coinbase.domain.price.CbAmount;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
 import com.coinbase.exception.CbApiException;
+import com.coinbase.util.CbDateUtils;
 import com.fasterxml.jackson.annotation.*;
 
 import java.time.LocalDateTime;
@@ -58,8 +59,6 @@ import java.time.format.DateTimeFormatter;
 @Generated("jsonschema2pojo")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CbTrade {
-    private final static DateTimeFormatter CREATION_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
     @JsonProperty("id")
     private String id;
     @JsonProperty("status")
@@ -239,7 +238,7 @@ public class CbTrade {
 
     public LocalDateTime getCreationDateTime() {
         if(creationDateTime == null){
-            creationDateTime = LocalDateTime.parse(createdAt,CREATION_TIME_FORMAT);
+            creationDateTime = CbDateUtils.toDateTime(createdAt);
         }
         return creationDateTime;
     }

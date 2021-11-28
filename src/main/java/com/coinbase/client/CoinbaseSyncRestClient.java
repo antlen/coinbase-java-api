@@ -39,10 +39,17 @@ import com.coinbase.domain.transaction.request.CbMoneyRequest;
 import com.coinbase.domain.user.CbUser;
 import com.coinbase.domain.user.response.CbUserResponse;
 import com.coinbase.domain.user.request.CbUserUpdateRequest;
+import com.coinbase.exception.CbApiHttpException;
 
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * The MIT License (MIT)
@@ -72,7 +79,8 @@ import java.util.*;
  *
  * @author antlen
  */
-public class CoinbaseRestClient implements CoinbaseClient {
+public class CoinbaseSyncRestClient implements CoinbaseClient {
+    public static final String LIMIT = "limit";
     private static DateTimeFormatter PRICE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static final String ACCOUNTS = "/accounts";
@@ -91,11 +99,34 @@ public class CoinbaseRestClient implements CoinbaseClient {
     public static final String COMMIT = "commit";
 
     private final RestConnection restApi;
-    private final String paginationSize;
+    private final String pageSizeStr;
+    private final int pageSize;
 
-    public CoinbaseRestClient(RestConnection restApi, int paginationSize) {
+    public CoinbaseSyncRestClient(RestConnection restApi, int paginationSize) {
         this.restApi = restApi;
-        this.paginationSize=Integer.toString(paginationSize);
+        this.pageSizeStr =Integer.toString(paginationSize);
+        this.pageSize = paginationSize;
+    }
+
+    private final <X, T extends CbPaginatedResponse<X>> List<X> getPaginated(Class<T> responseType,
+                                                                             final String uri, int maxRecords){
+        ArrayList<X> results = new ArrayList<>();
+        T response = block(restApi.get(responseType, uri, Map.of(LIMIT,pageSizeStr)));
+        results.addAll(response.getData());
+        populatePaginated(responseType,results,response,maxRecords, uri);
+        return results;
+    }
+
+    private <X, T extends CbPaginatedResponse<X>> void populatePaginated(Class<T> responseType,ArrayList<X> results,
+                                                                         T response, int maxRecords, String uri){
+        while((response.getPagination()!=null && response.getPagination().getNextUri()!=null)
+                && results.size()< maxRecords) {
+            int size = Math.min((maxRecords - results.size()), pageSize);
+            response = block(restApi.get(responseType, uri,
+                    Map.of(LIMIT,  Integer.toString(size), STARTING_AFTER,
+                            response.getPagination().getNextStartingAfter())));
+            results.addAll(response.getData());
+        }
     }
 
     private final <X, T extends CbResponse<X>> X get(Class<T> responseType, String path){
@@ -103,25 +134,7 @@ public class CoinbaseRestClient implements CoinbaseClient {
     }
 
     private final <X, T extends CbResponse<X>> X get(Class<T> responseType, String path, Map<String, String> params){
-        return restApi.get(responseType, path, params).getData();
-    }
-
-    private final <X, T extends CbPaginatedResponse<X>> List<X> getPaginated(Class<T> responseType, final String uri){
-        ArrayList<X> results = new ArrayList<>();
-        boolean loop = true;
-        Map<String, String> from = new HashMap<>();
-        from.put("limit",paginationSize);
-        while(loop){
-            T response = restApi.get(responseType, uri, from);
-            from.clear();
-            results.addAll(response.getData());
-            loop =  (response.getPagination()!=null && response.getPagination().getNextUri()!=null);
-            if(loop){
-                from.put("limit",paginationSize);
-                from.put(STARTING_AFTER,response.getPagination().getNextStartingAfter());
-            }
-        }
-        return results;
+        return block(restApi.get(responseType, path, params)).getData();
     }
 
     @Override
@@ -141,7 +154,7 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public CoinbaseClient clone() {
-        return new CoinbaseRestClient(restApi.clone(),  Integer.parseInt(paginationSize));
+        return new CoinbaseSyncRestClient(restApi.clone(),  Integer.parseInt(pageSizeStr));
     }
 
     @Override
@@ -155,8 +168,9 @@ public class CoinbaseRestClient implements CoinbaseClient {
     }
 
     @Override
+    @Path("")
     public List<CbAccount> getAccounts() {
-        return getPaginated(CbAccountListResponse.class, ACCOUNTS);
+        return getPaginated(CbAccountListResponse.class, ACCOUNTS, Integer.MAX_VALUE);
     }
 
     @Override
@@ -167,7 +181,7 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public List<CbPaymentMethod> getPaymentMethods() {
-        return getPaginated(CbPaymentMethodListResponse.class, PAYMENT_METHODS);
+        return getPaginated(CbPaymentMethodListResponse.class, PAYMENT_METHODS, Integer.MAX_VALUE);
     }
 
     @Override
@@ -179,25 +193,29 @@ public class CoinbaseRestClient implements CoinbaseClient {
         restApi.setLogJsonMessages(b);
     }
 
-
     @Override
     public CbUser updateUser(CbUserUpdateRequest u) {
-        return restApi.put(CbUserResponse.class, USER, u ).getData();
+        return block(restApi.put(CbUserResponse.class, USER, u )).getData();
     }
 
     @Override
     public CbAccount updateAccountName(CbAccountUpdateRequest req) {
-        return restApi.put(CbAccountResponse.class, toUri(ACCOUNTS,req.getAccount()), req).getData();
+        return block(restApi.put(CbAccountResponse.class, toUri(ACCOUNTS,req.getAccount()), req)).getData();
     }
 
     @Override
     public boolean deleteAccount(String id) {
-        return restApi.delete(toUri(ACCOUNTS,id));
+        try{
+            return restApi.delete(toUri(ACCOUNTS,id)).get().getStatusInfo().toEnum() == Response.Status.NO_CONTENT;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public List<CbAddress> getAddresses(String id) {
-        return getPaginated(CbAddressListResponse.class, toUri(ACCOUNTS,id, ADDRESSES));
+        return getPaginated(CbAddressListResponse.class, toUri(ACCOUNTS,id, ADDRESSES), Integer.MAX_VALUE);
     }
 
     @Override
@@ -207,19 +225,25 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public CbAddress createAddress(CbCreateAddressRequest request) {
-        return restApi.post(CbAddressResponse.class,
-                toUri(ACCOUNTS,request.getAccount(), ADDRESSES), request).getData();
+        return block(restApi.post(CbAddressResponse.class,
+                toUri(ACCOUNTS,request.getAccount(), ADDRESSES), request)).getData();
     }
 
     @Override
     public List<CbAddressTransaction> getTransactions(String accountId, String address) {
-        return getPaginated(CbAddressTransactionsResponse.class,
-                toUri(ACCOUNTS,accountId, ADDRESSES, address, TRANSACTIONS));
+        return getTransactions(accountId, address, Integer.MAX_VALUE);
     }
 
-    private CbAddressTransaction sendMoneyRequest(CbMoneyRequest req) {
-        return restApi.post(CbAddressTransactionResponse.class,
-                toUri(ACCOUNTS,req.getFrom(), TRANSACTIONS), req).getData();
+    @Override
+    public List<CbAddressTransaction> getTransactions(String accountId, String address, int maxRecords) {
+        return getPaginated(CbAddressTransactionsResponse.class,
+                toUri(ACCOUNTS,accountId, ADDRESSES, address, TRANSACTIONS), maxRecords);
+    }
+
+    @Override
+    public CbAddressTransaction sendMoneyRequest(CbMoneyRequest req) {
+        return block(restApi.post(CbAddressTransactionResponse.class,
+                toUri(ACCOUNTS,req.getFrom(), TRANSACTIONS), req)).getData();
     }
 
     @Override
@@ -253,10 +277,14 @@ public class CoinbaseRestClient implements CoinbaseClient {
     }
 
     @Override
-    public Collection<CbTrade> getTrades(String account, Side side) {
-        Collection<CbTrade> res = getPaginated(CbTradeListResponse.class, toUri(ACCOUNTS,account, side.getUri()));
+    public Collection<CbTrade> getTrades(String account, Side side, int maxRecords) {
+        Collection<CbTrade> res = getPaginated(CbTradeListResponse.class, toUri(ACCOUNTS,account, side.getUri()), maxRecords);
         res.stream().forEach(t ->t.setSide(side));
         return res;
+    }
+
+    public Collection<CbTrade> getTrades(String account, Side side) {
+        return getTrades(account, side, Integer.MAX_VALUE);
     }
 
     @Override
@@ -285,7 +313,7 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public List<CbCurrencyCode> getCurrencyCodes() {
-        return getPaginated(CbCurrencyCodeListResponse.class, CURRENCIES);
+        return getPaginated(CbCurrencyCodeListResponse.class, CURRENCIES, Integer.MAX_VALUE);
     }
 
     @Override
@@ -295,8 +323,13 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public Collection<CbCashTransaction> getCashTransaction(String account, CashTransactionType type) {
+        return getCashTransaction(account, type, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public Collection<CbCashTransaction> getCashTransaction(String account, CashTransactionType type, int maxRecords) {
         return getPaginated(CbCashTransactionListResponse.class,
-                toUri(ACCOUNTS,account, type.getUri()));
+                toUri(ACCOUNTS,account, type.getUri()), maxRecords);
     }
 
     @Override
@@ -307,20 +340,20 @@ public class CoinbaseRestClient implements CoinbaseClient {
 
     @Override
     public CbCashTransaction executeCashTransaction(CbCashTransactionRequest req) {
-        return restApi.post(CbCashTransactionResponse.class,
-                toUri(ACCOUNTS, req.getFrom(),req.getType().getUri()), req).getData();
+        return block(restApi.post(CbCashTransactionResponse.class,
+                toUri(ACCOUNTS, req.getFrom(),req.getType().getUri()), req)).getData();
     }
 
     @Override
     public CbCashTransaction commitCashTransaction(String account, String id, CashTransactionType type) {
         String path = toUri(ACCOUNTS, account, type.getUri(), id, COMMIT);
-        return restApi.post(CbCashTransactionResponse.class, path).getData();
+        return block(restApi.post(CbCashTransactionResponse.class, path, null)).getData();
     }
 
     @Override
     public CbCashTransaction commitCashTransaction(CbCashTransaction t) {
         if(t.getCommitted() !=null && !t.getCommitted()){
-            return restApi.post(CbCashTransactionResponse.class, toUri(t.getResourcePath(), COMMIT)).getData();
+            return block(restApi.post(CbCashTransactionResponse.class, toUri(t.getResourcePath(), COMMIT), null)).getData();
         }
         throw new CbApiException("The cash transaction is already committed.");
     }
@@ -328,19 +361,19 @@ public class CoinbaseRestClient implements CoinbaseClient {
     @Override
     public CbTrade placeOrder(CbOrderRequest req) {
         String path = toUri(ACCOUNTS, req.getFrom(),req.getSide().getUri());
-        return restApi.post(CbTradeResponse.class, path, req).getData().setSide(req.getSide());
+        return block(restApi.post(CbTradeResponse.class, path, req)).getData().setSide(req.getSide());
     }
 
     @Override
     public CbTrade commitOrder(String account, String orderId, Side side) {
         String path = toUri(ACCOUNTS, account, side.getUri(), orderId, COMMIT);
-        return restApi.post(CbTradeResponse.class, path).getData().setSide(side);
+        return block(restApi.post(CbTradeResponse.class, path, null)).getData().setSide(side);
     }
 
     @Override
     public CbTrade commitOrder(CbTrade t) {
         if(t.getCommitted() !=null && !t.getCommitted()){
-            return restApi.post(CbTradeResponse.class, toUri(t.getResourcePath(), COMMIT)).getData().setSide(t.getSide());
+            return block(restApi.post(CbTradeResponse.class, toUri(t.getResourcePath(), COMMIT), null)).getData().setSide(t.getSide());
         }
         throw new CbApiException("The trade is already committed.");
     }
@@ -354,7 +387,26 @@ public class CoinbaseRestClient implements CoinbaseClient {
     public CbExchangeRate getExchangeRate(String base) {
         Map<String, String> m = new HashMap<>();
         m.put("currency", base);
-       return  restApi.get(CbExchangeRateResponse.class, EXCHANGE_RATES, m).getData();
+        return block(restApi.get(CbExchangeRateResponse.class, EXCHANGE_RATES, m)).getData();
+    }
+
+    public <T extends CbResponse> T block(Future<T> t){
+        try {
+            return t.get();
+        } catch (InterruptedException e) {
+            throw exception(e);
+        } catch (ExecutionException e) {
+            throw exception(e.getCause());
+        }
+    }
+
+    CbApiException exception(Throwable e){
+        if(e instanceof ClientErrorException && ((ClientErrorException)e).getResponse().hasEntity()){
+            return new CbApiHttpException(((ClientErrorException)e).getResponse().readEntity(CbResponse.class));
+        }
+        else{
+            return new CbApiException("Error interacting with the server", e);
+        }
     }
 
     private String toUri(String ... s){

@@ -193,6 +193,18 @@ public interface CoinbaseClient {
     List<CbAddressTransaction> getTransactions(String accountId, String address);
 
     /**
+     * /**
+     * List transactions that have been sent to a specific address.
+     * regular bitcoin, bitcoin cash, litecoin or ethereum address can be used in place of address_id but
+     * the address has to be associated to the correct account.
+     * @param accountId
+     * @param address
+     * @param maxRecords - linmit to the number of records returned
+     * @return
+     */
+    List<CbAddressTransaction> getTransactions(String accountId, String address, int maxRecords);
+
+    /**
      * Get the API server time.
      * <p>
      * This endpoint doesn’t require authentication.
@@ -276,6 +288,13 @@ public interface CoinbaseClient {
     CbAddressTransaction transferMoney(CbMoneyRequest req);
 
     /**
+     * Send any type of Money Request, the axction will depend on the type.
+     * @param req
+     * @return
+     */
+    CbAddressTransaction sendMoneyRequest(CbMoneyRequest req);
+
+    /**
      * Gets a list of all of the trades made for the account
      * @param account
      * @return
@@ -289,6 +308,15 @@ public interface CoinbaseClient {
      * @return
      */
     Collection<CbTrade> getTrades(String account, Side side);
+
+    /**
+     * Gets a list of all buy or sell trades for the account,capped by maxRecords.
+     * @param account
+     * @param side
+     * @param maxRecords
+     * @return
+     */
+    Collection<CbTrade> getTrades(String account, Side side, int maxRecords);
 
 
     /**
@@ -306,6 +334,15 @@ public interface CoinbaseClient {
      * @return
      */
     Collection<CbCashTransaction> getCashTransaction(String account, CashTransactionType type);
+
+    /**
+     * Lists cash transaction (deposit / withdrawal)  for an account.
+     * @param account
+     * @param type
+     * @param maxRecords - limit to the number of records returned
+     * @return
+     */
+    Collection<CbCashTransaction> getCashTransaction(String account, CashTransactionType type, int maxRecords);
 
     /**
      *  Gets a single cash transaction (deposit / withdrawal) .
