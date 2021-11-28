@@ -126,7 +126,7 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
             int size = Math.min((maxRecords - results.size()), pageSize);
             String after = response.getPagination().getNextStartingAfter();
             response = block(restApi.get(responseType, uri,
-                    tgt -> tgt.queryParam(LIMIT,pageSizeStr).queryParam(STARTING_AFTER, after)));
+                    tgt -> tgt.queryParam(LIMIT,Integer.toString(size)).queryParam(STARTING_AFTER, after)));
             results.addAll(response.getData());
         }
     }
@@ -172,7 +172,6 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
 
     @Override
     public CbAccount getAccount(String id) {
-
         return get(CbAccountResponse.class, toUri(ACCOUNTS,id));
     }
 
