@@ -54,7 +54,8 @@ public class CoinbaseApiV2SecuredEndpoint implements SecuredEndpoint {
 
     private String generateSign(String timestamp, URI uri, String method, String body) {
         try {
-            String sign = timestamp + method.toUpperCase() + getURI(uri) + (body == null ? "" : body);
+            String uri1 = getURI(uri);
+            String sign = timestamp + method.toUpperCase() + uri1 + (body == null ? "" : body);
             Mac mac = Mac.getInstance(ALGO);
             mac.init(keySpec);
             return Hex.encodeHexString(mac.doFinal(sign.getBytes()));

@@ -54,7 +54,7 @@ public class CbApiHttpException extends CbApiException{
         b.append(type).append(": [");
         int i = 1;
         for(CbMessage er : messages){
-            b.append(i++).append(") ");
+            b.append("(").append(i++).append(") ");
             b.append(er.getMessage()).append(" ");
         }
         b.append("] ");

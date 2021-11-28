@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -80,60 +81,54 @@ public class CoinbaseRestConnection implements RestConnection {
         setLogJsonMessages(loggingEnabled);
     }
 
-    private AsyncInvoker buildAsync(String uri, Map<String, String> params) {
+    private AsyncInvoker buildAsync(String uri, Function<WebTarget, WebTarget> f) {
         WebTarget target = client.target(endPoint.getEndpoint().getHost())
                 .path(endPoint.getEndpoint().adaptUri(uri));
-        if (params != null) {
-            for (Map.Entry<String, String> e : params.entrySet()) {
-                target = target.queryParam(e.getKey(), e.getValue());
-            }
+        if (f != null) {
+            target = f.apply(target);
         }
         return target.request(MediaType.APPLICATION_JSON).async();
     }
 
-    public <T> Future<T> get(Class<T> responseType, String path, Map<String, String> params){
-        return run(() -> buildAsync(path, params).get(responseType));
+    public <T> Future<T> get(Class<T> responseType, String path, Function<WebTarget, WebTarget> f){
+        return buildAsync(path, f).get(responseType);
     }
 
     @Override
-    public <T> Future<T> get(InvocationCallback<T> callback, String path, Map<String, String> params){
-        return run(() -> buildAsync(path, params).get(callback));
+    public <T> Future<T> get(InvocationCallback<T> callback, String path, Function<WebTarget, WebTarget> f){
+        return buildAsync(path, f).get(callback);
     }
 
     @Override
     public <O, I> Future<O> put(InvocationCallback<O> callback, String uri, I o) {
-        return run(() -> buildAsync(uri, null).put(Entity.json(o), callback));
+        return buildAsync(uri, null).put(Entity.json(o), callback);
     }
 
     @Override
     public <O, I> Future<O> put(Class<O> responseType, String uri, I o) {
-        return run(() -> buildAsync(uri, null).put(Entity.json(o), responseType));
+        return buildAsync(uri, null).put(Entity.json(o), responseType);
     }
 
     @Override
     public <I, O> Future<O> post(InvocationCallback<O> callback, String uri, I o) {
-        return run(() -> {
-            Entity<I> json = o==null?null:Entity.json(o);
-            return buildAsync(uri, null).put(json, callback);
-        });
+        Entity<I> json = o==null?null:Entity.json(o);
+        return buildAsync(uri, null).put(json, callback);
     }
 
     @Override
     public <I,O> Future<O> post(Class<O> responseType, String uri, I o) {
-        return run(() -> {
-            Entity<I> json = o==null?null:Entity.json(o);
-            return buildAsync(uri, null).put(json, responseType);
-        });
+        Entity<I> json = o==null?null:Entity.json(o);
+        return buildAsync(uri, null).put(json, responseType);
     }
 
     @Override
     public Future<Response> delete(InvocationCallback<Response> callback, String uri) {
-        return run(() -> buildAsync(uri, null).delete(callback));
+        return buildAsync(uri, null).delete(callback);
     }
 
     @Override
     public Future<Response> delete(String uri){
-        return run(() -> buildAsync(uri, null).delete());
+        return buildAsync(uri, null).delete();
     }
 
     public synchronized void setLogJsonMessages(boolean b){
@@ -146,18 +141,6 @@ public class CoinbaseRestConnection implements RestConnection {
 
     public void close(){
         client.close();
-    }
-
-    public <T> Future<T> run(Supplier<Future<T>> t){
-        try {
-            return t.get();
-        }catch (ClientErrorException e){
-            if(e.getResponse().hasEntity()){
-                throw new CbApiHttpException(e.getResponse().readEntity(CbResponse.class));
-            }else{
-                throw new CbApiException("Error interacting with the server", e);
-            }
-        }
     }
 
     private class ClientRequestAuthFilter implements ClientRequestFilter{

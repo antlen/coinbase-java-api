@@ -43,12 +43,14 @@ import com.coinbase.exception.CbApiHttpException;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Path;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 /**
  * The MIT License (MIT)
@@ -80,6 +82,7 @@ import java.util.concurrent.Future;
  */
 public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
     public static final String LIMIT = "limit";
+    public static final String CURRENCY = "currency";
     private static DateTimeFormatter PRICE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static final String ACCOUNTS = "/accounts";
@@ -110,7 +113,7 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
     private final <X, T extends CbPaginatedResponse<X>> List<X> getPaginated(Class<T> responseType,
                                                                              final String uri, int maxRecords){
         ArrayList<X> results = new ArrayList<>();
-        T response = block(restApi.get(responseType, uri, Map.of(LIMIT,pageSizeStr)));
+        T response = block(restApi.get(responseType, uri, tgt -> tgt.queryParam(LIMIT,pageSizeStr)));
         results.addAll(response.getData());
         populatePaginated(responseType,results,response,maxRecords, uri);
         return results;
@@ -121,9 +124,9 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
         while((response.getPagination()!=null && response.getPagination().getNextUri()!=null)
                 && results.size()< maxRecords) {
             int size = Math.min((maxRecords - results.size()), pageSize);
+            String after = response.getPagination().getNextStartingAfter();
             response = block(restApi.get(responseType, uri,
-                    Map.of(LIMIT,  Integer.toString(size), STARTING_AFTER,
-                            response.getPagination().getNextStartingAfter())));
+                    tgt -> tgt.queryParam(LIMIT,pageSizeStr).queryParam(STARTING_AFTER, after)));
             results.addAll(response.getData());
         }
     }
@@ -132,8 +135,8 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
         return get(responseType, path, null);
     }
 
-    private final <X, T extends CbResponse<X>> X get(Class<T> responseType, String path, Map<String, String> params){
-        return block(restApi.get(responseType, path, params)).getData();
+    private final <X, T extends CbResponse<X>> X get(Class<T> responseType, String path,  Function<WebTarget, WebTarget> f){
+        return block(restApi.get(responseType, path, f)).getData();
     }
 
     @Override
@@ -158,12 +161,7 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
 
     @Override
     public CbUser getUser(String userId) {
-        try{
-            return get(CbUserResponse.class, toUri(USERS, userId));
-        }catch(Exception e){
-            throw new CbApiException("Something went wrong, it's likely user "
-                    + userId+" does not exist.", e);
-        }
+        return get(CbUserResponse.class, toUri(USERS, userId));
     }
 
     @Override
@@ -302,12 +300,11 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
     @Override
     public CbPrice getSpotPrice(String pair, LocalDate date){
         String uri = toUri(PRICES, pair, PriceType.SPOT.toString().toLowerCase());
-        Map<String, String> params = null;
         if(date !=null){
-            params = new HashMap<>();
-            params.put(DATE, date.format(PRICE_DATE_FORMAT));
+            return get(CbPriceResponse.class, uri,
+                    tgt -> tgt.queryParam(DATE,date.format(PRICE_DATE_FORMAT))).setType(PriceType.SPOT);
         }
-        return get(CbPriceResponse.class, uri, params).setType(PriceType.SPOT);
+        return get(CbPriceResponse.class, uri, null).setType(PriceType.SPOT);
     }
 
     @Override
@@ -384,9 +381,8 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
 
     @Override
     public CbExchangeRate getExchangeRate(String base) {
-        Map<String, String> m = new HashMap<>();
-        m.put("currency", base);
-        return block(restApi.get(CbExchangeRateResponse.class, EXCHANGE_RATES, m)).getData();
+        return block(restApi.get(CbExchangeRateResponse.class, EXCHANGE_RATES,
+                tgt -> tgt.queryParam(CURRENCY, base))).getData();
     }
 
     public <T extends CbResponse> T block(Future<T> t){
@@ -399,7 +395,7 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
         }
     }
 
-    CbApiException exception(Throwable e){
+    private CbApiException exception(Throwable e){
         if(e instanceof ClientErrorException && ((ClientErrorException)e).getResponse().hasEntity()){
             return new CbApiHttpException(((ClientErrorException)e).getResponse().readEntity(CbResponse.class));
         }

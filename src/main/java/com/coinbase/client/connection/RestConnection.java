@@ -1,9 +1,12 @@
 package com.coinbase.client.connection;
 
 import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * The MIT License (MIT)
@@ -49,9 +52,9 @@ public interface RestConnection {
      * @param <O>
      * @return
      */
-    <O> Future<O> get(Class<O> responseType, String uri, Map<String, String> params);
+    <O> Future<O> get(Class<O> responseType, String uri, Function<WebTarget, WebTarget> f);
 
-    <O> Future<O> get(InvocationCallback<O> callback, String uri, Map<String, String> params);
+    <O> Future<O> get(InvocationCallback<O> callback, String uri, Function<WebTarget, WebTarget> f);
 
     /**
      * makes a Put request and adds the object o to the request then ecodes the json response into
