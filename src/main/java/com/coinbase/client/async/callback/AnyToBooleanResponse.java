@@ -1,4 +1,10 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.async.callback;
+
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.domain.general.CbMessage;
+import com.coinbase.domain.general.response.CbResponse;
+
+import java.util.List;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +30,34 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Converts any response into a simple success or failed flag.
  *
  * @author antlen
+ *
+ * @param <RESPONSE>
+ *
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public class AnyToBooleanResponse<RESPONSE extends CbResponse> implements ResponseCallback<RESPONSE> {
 
-    public String getName(){
-        return toString().toLowerCase();
+    private static final Boolean FALSE = false;
+    private final ResponseCallback<Boolean> callback;
+
+    public AnyToBooleanResponse(ResponseCallback<Boolean> cb) {
+        callback = cb;
+    }
+
+    @Override
+    public void completed(RESPONSE response) {
+        callback.completed(isOK(response.getErrors()) && isOK(response.getWarnings()));
+    }
+
+    @Override
+    public void failed(Throwable throwable) {
+        callback.failed(throwable);
+        callback.completed(FALSE);
+    }
+
+    private boolean isOK(List<CbMessage> messages) {
+        return (messages == null || messages.isEmpty());
     }
 }

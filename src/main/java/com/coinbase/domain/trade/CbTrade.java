@@ -112,14 +112,10 @@ public class CbTrade {
 
     @JsonIgnore
     public Side getSide() {
+        if(side == null){
+            side = Side.getSide(getResourcePath().contains("buy"));
+        }
         return side;
-    }
-
-    @JsonIgnore
-    public CbTrade setSide(Side side) {
-        if(this.side != null) throw new CbApiException("Side is already set");
-        this.side = side;
-        return this;
     }
 
     @JsonProperty("id")

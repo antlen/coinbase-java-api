@@ -31,4 +31,8 @@ package com.coinbase.domain.transaction;
  */
 public enum TransactionType {
     SEND, TRANSFER, REQUEST;
+
+    public String getName(){
+        return toString().toLowerCase();
+    }
 }

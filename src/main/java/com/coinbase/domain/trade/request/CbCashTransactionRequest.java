@@ -38,12 +38,8 @@ public class CbCashTransactionRequest extends CbAmountRequest {
     @JsonProperty("commit")
     private final Boolean commit;
 
-    @JsonIgnore
-    private final CashTransactionType type;
-
-    CbCashTransactionRequest(CashTransactionType type, String account, String amount, String currency, String paymentMethod, Boolean commit) {
+    CbCashTransactionRequest(String account, String amount, String currency, String paymentMethod, Boolean commit) {
         super(account, amount, currency);
-        this.type = type;
         this.paymentMethod = paymentMethod;
         this.commit = commit;
     }
@@ -58,7 +54,4 @@ public class CbCashTransactionRequest extends CbAmountRequest {
         return commit;
     }
 
-    public CashTransactionType getType() {
-        return type;
-    }
 }

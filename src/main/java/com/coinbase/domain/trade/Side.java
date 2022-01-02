@@ -30,15 +30,25 @@ package com.coinbase.domain.trade;
  * @author antlen
  */
 public enum Side {
-    BUY("buys"),
-    SELL("sells");
+    BUY("buys", true),
+    SELL("sells", false);
 
     private final String uri;
-    Side(final String uri){
+    private final boolean isBuy;
+    Side(final String uri, final boolean isBuy){
         this.uri=uri;
+        this.isBuy=isBuy;
     }
 
     public String getUri() {
         return uri;
+    }
+
+    public boolean isBuy() {
+        return isBuy;
+    }
+
+    public static Side getSide(boolean isBuy){
+        return isBuy?BUY:SELL;
     }
 }

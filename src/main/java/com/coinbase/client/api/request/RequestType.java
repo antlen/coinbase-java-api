@@ -1,4 +1,4 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +24,15 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Enum for modeling the request types.
  *
  * @author antlen
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public enum RequestType {
+    GET(0),POST(1),PUT(2),DELETE(3);
+    private final int intValue;
 
-    public String getName(){
-        return toString().toLowerCase();
+    RequestType(int v){
+        intValue=v;
     }
 }

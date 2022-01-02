@@ -1,4 +1,12 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
+
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.domain.general.response.CbResponse;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +32,25 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Wrapper for a Get request
  *
  * @author antlen
+ * @param <O>
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public class GetRequest<O extends CbResponse> extends AbstractRequest<O> {
+    private static AtomicInteger index = new AtomicInteger();
+    Client c;
+    public GetRequest(Class<O> klass, WebTarget target) {
+        super(klass, RequestType.GET, target);
+    }
 
-    public String getName(){
-        return toString().toLowerCase();
+    @Override
+    public O sync() {
+        return jsonRequest().get(klass);
+    }
+
+    @Override
+    public Future<O> async(ResponseCallback<O> cb) {
+        return new FutureWrapper(asyncJson().get(new CallBack(cb)));
     }
 }

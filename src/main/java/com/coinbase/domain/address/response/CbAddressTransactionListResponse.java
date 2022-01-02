@@ -1,4 +1,10 @@
-package com.coinbase.domain.price;
+package com.coinbase.domain.address.response;
+
+import com.coinbase.domain.address.CbAddressTransaction;
+import com.coinbase.domain.pagination.response.CbPaginatedResponse;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.annotation.Generated;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +30,10 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
  *
  * @author antlen
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
-
-    public String getName(){
-        return toString().toLowerCase();
-    }
+@Generated("jsonschema2pojo")
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CbAddressTransactionListResponse extends CbPaginatedResponse<CbAddressTransaction> {
 }

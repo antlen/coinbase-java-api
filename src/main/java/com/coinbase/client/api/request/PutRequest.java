@@ -1,4 +1,10 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
+
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.domain.general.response.CbResponse;
+
+import javax.ws.rs.client.WebTarget;
+import java.util.concurrent.Future;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +30,24 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Wrapper for a Put request
  *
  * @author antlen
+ * @param <I>
+ * @param <O>
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public class PutRequest<I,O extends CbResponse> extends AbstractEntityRequest<I,O> {
+    public PutRequest(Class<O> klass, WebTarget target) {
+        super(klass, RequestType.PUT, target);
+    }
 
-    public String getName(){
-        return toString().toLowerCase();
+    @Override
+    public O sync() {
+        return jsonRequest().put(data, klass);
+    }
+
+    @Override
+    public Future<O> async(ResponseCallback<O> cb) {
+        return new FutureWrapper(asyncJson().put(data, new CallBack(cb)));
     }
 }

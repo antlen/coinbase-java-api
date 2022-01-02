@@ -71,7 +71,7 @@ public class CbCashTransactionRequestBuilder extends CbAmountRequestBuilder<CbCa
 
     @Override
     public CbCashTransactionRequest doBuild() {
-        return new CbCashTransactionRequest(type,from, amount, currency, paymentMethod, commit);
+        return new CbCashTransactionRequest(from, amount, currency, paymentMethod, commit);
     }
 
 }

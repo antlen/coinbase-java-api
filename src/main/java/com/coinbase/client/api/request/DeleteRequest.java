@@ -1,4 +1,10 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
+
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.domain.general.response.CbResponse;
+
+import javax.ws.rs.client.WebTarget;
+import java.util.concurrent.Future;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +30,22 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Wrapper for a delete request
  *
  * @author antlen
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public class DeleteRequest extends AbstractRequest<CbResponse> {
+    public DeleteRequest(WebTarget target) {
+        super(CbResponse.class, RequestType.GET, target);
+    }
 
-    public String getName(){
-        return toString().toLowerCase();
+    @Override
+    public CbResponse sync() {
+        return jsonRequest().delete(klass);
+    }
+
+    @Override
+    public Future<CbResponse> async(ResponseCallback<CbResponse> cb) {
+        return new FutureWrapper(asyncJson().delete(new CallBack(cb)));
     }
 }

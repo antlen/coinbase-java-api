@@ -1,25 +1,19 @@
 package com.coinbase.client.connection;
 
+import com.coinbase.client.api.request.*;
 import com.coinbase.domain.general.response.CbResponse;
+import com.coinbase.domain.pagination.response.CbPaginatedResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.coinbase.exception.CbApiException;
 import com.coinbase.client.connection.auth.SecuredEndpoint;
-import com.coinbase.exception.CbApiHttpException;
-
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * The MIT License (MIT)
@@ -55,15 +49,17 @@ public class CoinbaseRestConnection implements RestConnection {
     private volatile LoggingClientResponseFilter responseLogger;
     private Client client;
     private boolean loggingEnabled = false;
+    private int pageSize;
 
-    public CoinbaseRestConnection(SecuredEndpoint endPoint){
+    public CoinbaseRestConnection(SecuredEndpoint endPoint, int pageSize){
         this.endPoint=endPoint;
+        this.pageSize = pageSize;
         reconnect();
     }
 
     @Override
     public RestConnection clone() {
-        return new CoinbaseRestConnection(endPoint);
+        return new CoinbaseRestConnection(endPoint, pageSize);
     }
 
     @Override
@@ -81,54 +77,34 @@ public class CoinbaseRestConnection implements RestConnection {
         setLogJsonMessages(loggingEnabled);
     }
 
-    private AsyncInvoker buildAsync(String uri, Function<WebTarget, WebTarget> f) {
-        WebTarget target = client.target(endPoint.getEndpoint().getHost())
+    @Override
+    public <I,O extends CbResponse> PostRequest<I,O> post(Class<O> c, String uri) {
+        return new PostRequest<I,O>(c, buildWebTarget(client, endPoint, uri));
+    }
+
+    @Override
+    public <I,O extends CbResponse> PutRequest<I,O> put(Class<O> c, String uri) {
+        return new PutRequest<I,O>(c, buildWebTarget(client, endPoint, uri));
+    }
+
+    @Override
+    public <O extends CbResponse> GetRequest<O> get(Class<O> c, String uri) {
+        return new GetRequest<O>(c, buildWebTarget(client, endPoint, uri));
+    }
+
+    @Override
+    public <O extends CbPaginatedResponse<?>> PaginatedGetRequest<O> paginatedGet(Class<O> c, String uri) {
+        return new PaginatedGetRequest<O>(c, buildWebTarget(client, endPoint, uri), pageSize);
+    }
+
+    @Override
+    public DeleteRequest delete(String uri) {
+        return new DeleteRequest(buildWebTarget(client, endPoint, uri));
+    }
+
+    private WebTarget buildWebTarget(Client client, SecuredEndpoint endPoint, String uri) {
+        return client.target(endPoint.getEndpoint().getHost())
                 .path(endPoint.getEndpoint().adaptUri(uri));
-        if (f != null) {
-            target = f.apply(target);
-        }
-        return target.request(MediaType.APPLICATION_JSON).async();
-    }
-
-    public <T> Future<T> get(Class<T> responseType, String path, Function<WebTarget, WebTarget> f){
-        return buildAsync(path, f).get(responseType);
-    }
-
-    @Override
-    public <T> Future<T> get(InvocationCallback<T> callback, String path, Function<WebTarget, WebTarget> f){
-        return buildAsync(path, f).get(callback);
-    }
-
-    @Override
-    public <O, I> Future<O> put(InvocationCallback<O> callback, String uri, I o) {
-        return buildAsync(uri, null).put(Entity.json(o), callback);
-    }
-
-    @Override
-    public <O, I> Future<O> put(Class<O> responseType, String uri, I o) {
-        return buildAsync(uri, null).put(Entity.json(o), responseType);
-    }
-
-    @Override
-    public <I, O> Future<O> post(InvocationCallback<O> callback, String uri, I o) {
-        Entity<I> json = o==null?null:Entity.json(o);
-        return buildAsync(uri, null).put(json, callback);
-    }
-
-    @Override
-    public <I,O> Future<O> post(Class<O> responseType, String uri, I o) {
-        Entity<I> json = o==null?null:Entity.json(o);
-        return buildAsync(uri, null).put(json, responseType);
-    }
-
-    @Override
-    public Future<Response> delete(InvocationCallback<Response> callback, String uri) {
-        return buildAsync(uri, null).delete(callback);
-    }
-
-    @Override
-    public Future<Response> delete(String uri){
-        return buildAsync(uri, null).delete();
     }
 
     public synchronized void setLogJsonMessages(boolean b){

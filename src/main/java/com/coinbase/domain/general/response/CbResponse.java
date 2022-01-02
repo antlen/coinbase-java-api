@@ -37,7 +37,7 @@ import java.util.List;
  * @author antlen
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CbResponse<T> {
+public class CbResponse<T>{
 
     private T data;
     @JsonProperty("warnings")

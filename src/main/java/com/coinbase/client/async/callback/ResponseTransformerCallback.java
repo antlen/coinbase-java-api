@@ -1,10 +1,10 @@
-package com.coinbase.domain.address.response;
+package com.coinbase.client.async.callback;
 
-import com.coinbase.domain.address.CbAddressTransaction;
-import com.coinbase.domain.pagination.response.CbPaginatedResponse;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.domain.general.response.CbResponse;
 
-import javax.annotation.Generated;
+import javax.ws.rs.client.InvocationCallback;
+import java.util.function.Function;
 
 /**
  * The MIT License (MIT)
@@ -30,10 +30,37 @@ import javax.annotation.Generated;
  *	SOFTWARE.
  *
  * ------------------------------------------------
+ * internal base callback for handling conversion into the underlying data.
  *
  * @author antlen
+ * @param <DATA>
+ * @param <RESPONSE>
  */
-@Generated("jsonschema2pojo")
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class CbAddressTransactionsResponse extends CbPaginatedResponse<CbAddressTransaction> {
+public class ResponseTransformerCallback<DATA, RESPONSE extends CbResponse<DATA>> implements ResponseCallback<RESPONSE> {
+    private final Function<DATA,DATA> adapt;
+    private final ResponseCallback<DATA> cb;
+
+    public ResponseTransformerCallback(ResponseCallback<DATA> cb) {
+        this(cb, null);
+    }
+
+    public ResponseTransformerCallback(ResponseCallback<DATA> cb, Function<DATA,DATA> adapt) {
+        this.cb = cb;
+        this.adapt=adapt;
+    }
+
+    @Override
+    public void failed(Throwable throwable) {
+        cb.failed(throwable);
+    }
+
+    @Override
+    public final void completed(RESPONSE response) {
+        DATA d = adapt==null?response.getData(): adapt.apply(response.getData());
+        callCompleted(d);
+    }
+
+    protected void callCompleted(DATA d) {
+        cb.completed(d);
+    }
 }

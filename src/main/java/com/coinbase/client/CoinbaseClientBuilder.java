@@ -1,8 +1,16 @@
 package com.coinbase.client;
 
-import com.coinbase.builder.Builder;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.async.CoinbaseASyncRestClient;
+import com.coinbase.client.async.CoinbaseExecutorRestClient;
 import com.coinbase.client.connection.CoinbaseRestConnection;
 import com.coinbase.client.connection.auth.CoinbaseApiV2SecuredEndpoint;
+import com.coinbase.client.api.CoinbaseDefaultRequestApi;
+import com.coinbase.client.api.CoinbaseRequestApi;
+import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.client.sync.CoinbaseSyncRestClient;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * The MIT License (MIT)
@@ -32,27 +40,34 @@ import com.coinbase.client.connection.auth.CoinbaseApiV2SecuredEndpoint;
  *
  * @author antlen
  */
-public class CoinbaseClientBuilder implements Builder<CoinbaseSyncClient> {
+public class CoinbaseClientBuilder {
 
-    private final String apiKey;
-    private final byte[] secretKey;
-
-    private int paginationLimit = 25;
+    private final CoinbaseApiV2SecuredEndpoint endPoint;
+    private CoinbaseRestConnection connection;
 
     public CoinbaseClientBuilder(String apiKey, byte[] secretKey){
-        this.apiKey=apiKey;
-        this.secretKey= secretKey;
+        endPoint = new CoinbaseApiV2SecuredEndpoint(apiKey, secretKey);
+        connection = new CoinbaseRestConnection(endPoint, 25);
     }
 
     public CoinbaseClientBuilder setPaginationLimit(int paginationLimit){
-        this.paginationLimit=paginationLimit;
+        connection = new CoinbaseRestConnection(endPoint, paginationLimit);
         return this;
     }
 
-    @Override
-    public CoinbaseSyncClient build() {
-        CoinbaseApiV2SecuredEndpoint endPoint = new CoinbaseApiV2SecuredEndpoint(apiKey, secretKey);
-        CoinbaseRestConnection connection = new CoinbaseRestConnection(endPoint);
-        return new CoinbaseSyncRestClient(connection, paginationLimit);
+    public CoinbaseASyncClient buildASyncClient() {
+        return new CoinbaseASyncRestClient(buildApi());
+    }
+
+    public CoinbaseASyncClient buildASyncClient( ExecutorService outbound,ExecutorService inbound) {
+        return new CoinbaseExecutorRestClient(buildApi(), outbound, inbound);
+    }
+
+    public CoinbaseSyncClient buildSyncClient() {
+        return new CoinbaseSyncRestClient(buildApi());
+    }
+
+    private CoinbaseRequestApi buildApi() {
+        return new CoinbaseDefaultRequestApi(connection);
     }
 }

@@ -1,4 +1,6 @@
-package com.coinbase.domain.price;
+package com.coinbase.callback;
+
+import java.util.Collection;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +26,22 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ *
+ * Callback to receive the underlying results from a paginated request.  May be called multiple times.
+ *
+ * @param <T>
  *
  * @author antlen
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public interface PaginatedCollectionCallback<T> {
 
-    public String getName(){
-        return toString().toLowerCase();
-    }
+    /**
+     * Results from a paginated call.
+     *
+     * @param response
+     * @param moreToCome  - whether there are more results to come
+     */
+    void pagedResults(Collection<T> response, boolean moreToCome);
+
+    void failed(Throwable throwable);
 }

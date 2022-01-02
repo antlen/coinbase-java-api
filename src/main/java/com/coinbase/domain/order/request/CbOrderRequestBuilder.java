@@ -34,36 +34,10 @@ import com.coinbase.domain.trade.Side;
  */
 public class CbOrderRequestBuilder extends CbAmountRequestBuilder<CbOrderRequestBuilder,CbOrderRequest> {
 
-    private Side side;
     private String paymentMethod;
     private Boolean allowQueuing;
     private Boolean commit;
     private Boolean quote;
-
-    /**
-     * Helper method for creating a builder for a buy order.
-     * @return
-     */
-    public static CbOrderRequestBuilder newBuy() {
-        return new CbOrderRequestBuilder().setSide(Side.BUY);
-    }
-
-    /**
-     * Helper method for creating a builder for a sell order.
-     * @return
-     */
-    public static CbOrderRequestBuilder newSell() {
-        return new CbOrderRequestBuilder().setSide(Side.SELL);
-    }
-
-    public CbOrderRequestBuilder setSide(Side side) {
-        this.side = side;
-        return this;
-    }
-
-    public Side getSide() {
-        return side;
-    }
 
     public String getPaymentMethod() {
         return paymentMethod;
@@ -108,13 +82,12 @@ public class CbOrderRequestBuilder extends CbAmountRequestBuilder<CbOrderRequest
 
     @Override
     public void doValidate() {
-        ValidationUtils.validateNotNull(side, "Side");
         ValidationUtils.validateNotNull(paymentMethod, "Payment Method");
     }
 
     @Override
     public CbOrderRequest doBuild() {
-        return new CbOrderRequest(from, side, amount, currency, paymentMethod, allowQueuing, commit, quote);
+        return new CbOrderRequest(from, amount, currency, paymentMethod, allowQueuing, commit, quote);
     }
 
 }

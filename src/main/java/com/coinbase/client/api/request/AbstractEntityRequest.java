@@ -1,4 +1,9 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
+
+import com.coinbase.domain.general.response.CbResponse;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +29,23 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Allows adding an entity to send with the request. This will be used for put and post requests.
  *
  * @author antlen
+ * @param <I>
+ * @param <O>
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public abstract class AbstractEntityRequest<I,O extends CbResponse> extends AbstractRequest<O> implements EntityRequestInvoker<I,O>{
 
-    public String getName(){
-        return toString().toLowerCase();
+    protected Entity<I> data;
+
+    public AbstractEntityRequest(Class<O> klass, RequestType type, WebTarget target) {
+        super(klass, type, target);
+    }
+
+    @Override
+    public EntityRequestInvoker<I,O> with(I input) {
+        data = Entity.json(input);;
+        return this;
     }
 }

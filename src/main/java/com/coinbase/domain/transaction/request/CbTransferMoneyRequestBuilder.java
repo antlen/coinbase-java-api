@@ -38,7 +38,7 @@ public class CbTransferMoneyRequestBuilder extends CbTransactionTypeRequestBuild
     protected String toAccount;
 
     public CbTransferMoneyRequestBuilder() {
-        super( TransactionType.TRANSFER);
+        super(TransactionType.TRANSFER);
     }
 
     public CbTransferMoneyRequestBuilder setToAccount(CbAccount account) {

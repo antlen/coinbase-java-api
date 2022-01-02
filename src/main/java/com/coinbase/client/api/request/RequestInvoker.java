@@ -1,4 +1,9 @@
-package com.coinbase.domain.price;
+package com.coinbase.client.api.request;
+
+import com.coinbase.callback.ResponseCallback;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +29,17 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ * Wraps a prepared request.  The invoker can choose whether to invoke synchronously,
+ * asynchronously, or prepare a callable to execute in a Executor service.
  *
  * @author antlen
+ * @param <R>
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public interface RequestInvoker<R> {
 
-    public String getName(){
-        return toString().toLowerCase();
-    }
+    R sync();
+
+    Future<R> async(ResponseCallback<R> delegate);
+
+    Callable<R> prepare(ResponseCallback<R> delegate);
 }

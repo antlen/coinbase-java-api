@@ -1,4 +1,4 @@
-package com.coinbase.domain.price;
+package com.coinbase.callback;
 
 /**
  * The MIT License (MIT)
@@ -24,16 +24,24 @@ package com.coinbase.domain.price;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * The price types that are available.
+ *
+ * Callback to receive the results of a request.
+ *
+ * @param <RESPONSE>
  *
  * @author antlen
  */
-public enum PriceType {
-    BUY,
-    SELL,
-    SPOT;
+public interface ResponseCallback<RESPONSE> {
 
-    public String getName(){
-        return toString().toLowerCase();
-    }
+    /**
+     * called when the request is complete.
+     * @param response
+     */
+    void completed(RESPONSE response);
+
+    /**
+     * Called if there is an error with the request.
+     * @param throwable
+     */
+    void failed(Throwable throwable);
 }

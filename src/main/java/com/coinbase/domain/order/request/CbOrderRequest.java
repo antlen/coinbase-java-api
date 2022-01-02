@@ -36,9 +36,6 @@ import com.coinbase.domain.trade.Side;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CbOrderRequest extends CbAmountRequest {
 
-    @JsonIgnore
-    private final Side side;
-
     @JsonProperty("payment_method")
     private final String paymentMethod;
     @JsonProperty("agree_btc_amount_varies")
@@ -48,17 +45,13 @@ public class CbOrderRequest extends CbAmountRequest {
     @JsonProperty("quote")
     private final Boolean quote;
 
-    CbOrderRequest(String account, Side side, String amount, String currency, String paymentMethod, Boolean allowQueuing, Boolean commit, Boolean quote) {
+    CbOrderRequest(String account,String amount, String currency, String paymentMethod, Boolean allowQueuing, Boolean commit, Boolean quote) {
         super(account, amount, currency);
-        this.side = side;
+
         this.paymentMethod = paymentMethod;
         this.allowQueuing = allowQueuing;
         this.commit = commit;
         this.quote = quote;
-    }
-
-    public Side getSide() {
-        return side;
     }
 
     public String getPaymentMethod() {

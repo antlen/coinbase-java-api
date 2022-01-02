@@ -1,12 +1,8 @@
 package com.coinbase.client.connection;
 
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import com.coinbase.client.api.request.*;
+import com.coinbase.domain.general.response.CbResponse;
+import com.coinbase.domain.pagination.response.CbPaginatedResponse;
 
 /**
  * The MIT License (MIT)
@@ -44,87 +40,17 @@ public interface RestConnection {
     void setLogJsonMessages(boolean b);
 
     /**
-     * makes a get request to the URI along with the parameters and decodes the json response into
-     * an object of type responseType.
-     * @param responseType
-     * @param uri
-     * @param params - can be null
-     * @param <O>
-     * @return
-     */
-    <O> Future<O> get(Class<O> responseType, String uri, Function<WebTarget, WebTarget> f);
-
-    <O> Future<O> get(InvocationCallback<O> callback, String uri, Function<WebTarget, WebTarget> f);
-
-    /**
-     * makes a Put request and adds the object o to the request then ecodes the json response into
-     * an object of type responseType returned by a Future
-     * @param responseType
-     * @param uri
-     * @param o - can be null
-     * @param <O>
-     * @param <I>
-     * @return
-     */
-    <O, I> Future<O> put(Class<O> responseType, String uri, I o);
-
-    /**
-     * makes a Put request and adds the object o to the request then ecodes the json response into
-     * an object of type responseType. The response can be obtained from the Future or the callback will be called
-     * with the result.
-     * @param callback
-     * @param uri
-     * @param o - can be null
-     * @param <O>
-     * @param <I>
-     * @return
-     */
-    <O, I> Future<O> put(InvocationCallback<O> callback, String uri, I o);
-
-    /**
-     * makes a Post  request and adds the object o to the request then ecodes the json response into
-     * an object of type responseType.
-     * @param responseType
-     * @param uri
-     * @param jsonObj
-     * @param <I> a object to encore - can be null.
-     * @param <O>
-     * @return
-     */
-    <I,O> Future<O> post(Class<O> responseType, String uri, I jsonObj);
-
-    <I,O> Future<O> post(InvocationCallback<O> callback, String uri, I jsonObj);
-
-    /**
-     * makes a post request to the URI and decodes the json response into
-     * an object of type responseType.
-     * @param responseType
-     * @param uri
-     * @param <O>
-     * @return
-     */
-  //  <O> Future<O> post(Class<O> responseType, String uri);
-
- //   <O> Future<O> post(InvocationCallback<O> callback, String uri);
-
-    /**
-     * makes a http Delete call to the uri
-     * @param uri
-     * @return
-     */
-    Future<Response> delete(String uri);
-
-    Future<Response> delete(InvocationCallback<Response> callback, String uri);
-
-    /**
      * reestablish the session to the server
      */
     void reconnect();
 
-    /**
-     * Makes a clone of the connection.
-     *
-     * @return
-     */
-    RestConnection clone();
+    <I,O  extends CbResponse> PostRequest<I,O> post(Class<O> c, String uri);
+
+    <I,O extends CbResponse> PutRequest<I,O> put(Class<O> c, String uri);
+
+    <O extends CbResponse> GetRequest<O> get(Class<O> c, String uri);
+
+    <O extends CbPaginatedResponse<?>> PaginatedGetRequest<O> paginatedGet(Class<O> c, String uri);
+
+    DeleteRequest delete(String uri);
 }
