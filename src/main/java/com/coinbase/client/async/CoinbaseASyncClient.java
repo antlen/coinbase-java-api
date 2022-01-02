@@ -24,6 +24,7 @@ import com.coinbase.domain.user.CbUser;
 import com.coinbase.domain.user.request.CbUserUpdateRequest;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The MIT License (MIT)
@@ -115,6 +116,7 @@ public interface CoinbaseASyncClient {
      * Lists current user’s accounts to which the authentication method has access to.
      *
      * @param cb
+     * @return
      */
     void fetchAccounts(PaginatedCollectionCallback<CbAccount> cb);
 

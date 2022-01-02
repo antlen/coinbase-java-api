@@ -32,6 +32,7 @@ import com.coinbase.exception.CbApiException;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The MIT License (MIT)
