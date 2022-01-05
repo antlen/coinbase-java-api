@@ -1,10 +1,16 @@
-package com.coinbase.callback;
+package com.coinbase.client.api.request;
 
-import com.coinbase.client.api.request.PaginatedGetRequest;
-import com.coinbase.client.api.request.PaginatedRequest;
-import com.coinbase.client.api.request.RequestInvoker;
+import com.coinbase.callback.PaginatedResponseCallback;
+import com.coinbase.callback.ResponseCallback;
 import com.coinbase.domain.general.response.CbResponse;
 import com.coinbase.domain.pagination.response.CbPaginatedResponse;
+import com.coinbase.exception.CbApiHttpException;
+
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 /**
  * The MIT License (MIT)
@@ -30,20 +36,28 @@ import com.coinbase.domain.pagination.response.CbPaginatedResponse;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- *
- * Callback to receive the underlying results from a paginated request.  May be called multiple times.
- *
- * @param <T>
+ * Wrapper for a paginated request
  *
  * @author antlen
+ * @param <O>
  */
-public interface PaginatedResponseCallback<T extends CbResponse> extends FailureCallback{
+public abstract class PaginatedRequest<O extends CbResponse> extends AbstractRequest<O> {
+    private PaginatedRequest<O> next = null;
 
-    /**
-     * Results from a paginated call.
-     *
-     * @param response
-     * @param next  - the next results. Can be null
-     */
-    void pagedResults(T response, PaginatedRequest<T> next);
+    public PaginatedRequest(Class<O> klass, RequestType type, WebTarget target) {
+        super(klass, type, target);
+    }
+
+    public final PaginatedRequest<O> next() {
+        return next;
+    }
+
+    protected final void setNext(PaginatedRequest<O> next){
+        this.next=next;
+    }
+    public abstract Future<O> async(PaginatedResponseCallback<O> cb);
+
+    public final Callable<O> prepare(PaginatedResponseCallback<O> delegate) {
+        return () -> async(delegate).get();
+    }
 }

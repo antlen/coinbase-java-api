@@ -2,15 +2,14 @@ package com.coinbase.client.async;
 
 import com.coinbase.callback.PaginatedCollectionCallback;
 import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.api.request.PaginatedRequest;
 import com.coinbase.client.async.callback.PaginatedResponseTransformerCallback;
 import com.coinbase.client.async.callback.ResponseTransformerCallback;
 import com.coinbase.client.api.CoinbaseRequestApi;
-import com.coinbase.client.api.request.PaginatedGetRequest;
 import com.coinbase.client.api.request.RequestInvoker;
 import com.coinbase.domain.general.response.CbResponse;
 import com.coinbase.domain.pagination.response.CbPaginatedResponse;
 
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -42,24 +41,24 @@ import java.util.concurrent.ExecutorService;
  * @author antlen
  */
 public class CoinbaseExecutorRestClient extends AbstractCoinbaseASyncRestClient{
-    private final ExecutorService outbound;
-    private final ExecutorService inbound;
+    private final ExecutorService requestService;
+    private final ExecutorService responseService;
 
-    public CoinbaseExecutorRestClient(CoinbaseRequestApi api, ExecutorService outbound,
-                                      ExecutorService inbound ) {
+    public CoinbaseExecutorRestClient(CoinbaseRequestApi api, ExecutorService requestService,
+                                      ExecutorService responseService ) {
         super(api);
-        this.outbound=outbound;
-        this.inbound=inbound;
+        this.requestService =requestService;
+        this.responseService =responseService;
     }
 
     @Override
     protected <R> void invoke(RequestInvoker i, ResponseCallback<R> cb) {
-        outbound.submit(i.prepare(new MyResponseTransformerCallback(cb)));
+        requestService.submit(i.prepare(new MyResponseTransformerCallback(cb)));
     }
 
     @Override
-    protected <R> void invoke(PaginatedGetRequest<? extends CbPaginatedResponse<R>> i, PaginatedCollectionCallback<R> cb) {
-        outbound.submit(i.prepare(new MyPaginatedResponseTransformerCallback(cb)));
+    protected <R> void invoke(PaginatedRequest<? extends CbPaginatedResponse<R>> i, PaginatedCollectionCallback<R> cb) {
+        requestService.submit(i.prepare(new MyPaginatedResponseTransformerCallback(cb)));
     }
 
     private class MyPaginatedResponseTransformerCallback<DATA, RESPONSE extends CbPaginatedResponse<DATA>>
@@ -70,25 +69,36 @@ public class CoinbaseExecutorRestClient extends AbstractCoinbaseASyncRestClient{
         }
 
         @Override
-        public void handleNext(PaginatedGetRequest<RESPONSE> next) {
+        public void handleNext(PaginatedRequest<RESPONSE> next) {
             invoke(next, cb);
         }
 
         @Override
-        protected void callCompleted(Collection<DATA> d, boolean more){
-            inbound.submit(() -> MyPaginatedResponseTransformerCallback.super.callCompleted(d, more));
+        public void failed(Throwable throwable) {
+            responseService.submit(() -> super.failed(throwable));
+        }
+
+        @Override
+        protected void handlerResults(RESPONSE response, boolean more) {
+            responseService.submit(() -> super.handlerResults(response, more));
         }
     }
 
     private class MyResponseTransformerCallback<DATA, RESPONSE extends CbResponse<DATA>>
             extends ResponseTransformerCallback<DATA,RESPONSE> {
+
         public MyResponseTransformerCallback(ResponseCallback<DATA> cb) {
             super(cb);
         }
 
         @Override
         protected void callCompleted(DATA d) {
-            inbound.submit(() -> MyResponseTransformerCallback.super.callCompleted(d));
+            responseService.submit(() -> MyResponseTransformerCallback.super.callCompleted(d));
+        }
+
+        @Override
+        public void failed(Throwable throwable) {
+            responseService.submit(() -> super.failed(throwable));
         }
     }
 }

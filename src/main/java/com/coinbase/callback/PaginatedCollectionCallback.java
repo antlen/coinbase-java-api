@@ -33,15 +33,6 @@ import java.util.Collection;
  *
  * @author antlen
  */
-public interface PaginatedCollectionCallback<T> {
+public interface PaginatedCollectionCallback<T> extends PaginatedCallback<Collection<T>>{
 
-    /**
-     * Results from a paginated call.
-     *
-     * @param response
-     * @param moreToCome  - whether there are more results to come
-     */
-    void pagedResults(Collection<T> response, boolean moreToCome);
-
-    void failed(Throwable throwable);
 }

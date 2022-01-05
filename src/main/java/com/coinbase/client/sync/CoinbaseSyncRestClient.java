@@ -2,6 +2,7 @@ package com.coinbase.client.sync;
 
 import com.coinbase.client.api.CoinbaseRequestApi;
 import com.coinbase.client.api.request.PaginatedGetRequest;
+import com.coinbase.client.api.request.PaginatedRequest;
 import com.coinbase.domain.account.CbAccount;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
 import com.coinbase.domain.order.request.CbOrderRequest;
@@ -62,10 +63,9 @@ public class CoinbaseSyncRestClient implements CoinbaseSyncClient {
         this.api = api;
     }
 
-    private <T> List<T> page(PaginatedGetRequest<? extends CbPaginatedResponse<T>> req, int maxRecords){
+    private <T> List<T> page(PaginatedRequest<? extends CbPaginatedResponse<T>> req, int maxRecords){
         List<T> res = new ArrayList<>();
         while(req != null && (maxRecords < 0 || res.size() < maxRecords)){
-            int rec = maxRecords - res.size();
             res.addAll(req.sync().getData());
             req = req.next();
         }

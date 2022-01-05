@@ -2,7 +2,8 @@ package com.coinbase.client.async.callback;
 
 import com.coinbase.callback.PaginatedCollectionCallback;
 import com.coinbase.callback.PaginatedResponseCallback;
-import com.coinbase.client.api.request.PaginatedGetRequest;
+import com.coinbase.client.api.request.PaginatedRequest;
+import com.coinbase.client.api.request.RequestInvoker;
 import com.coinbase.domain.pagination.response.CbPaginatedResponse;
 
 import java.util.Collection;
@@ -41,7 +42,8 @@ import java.util.stream.Collectors;
  * @param <DATA>
  * @param <RESPONSE>
  */
-public abstract class PaginatedResponseTransformerCallback<DATA, RESPONSE extends CbPaginatedResponse<DATA>> implements PaginatedResponseCallback<RESPONSE> {
+public abstract class PaginatedResponseTransformerCallback<DATA, RESPONSE extends CbPaginatedResponse<DATA>>
+        extends HandlePaginationResponseCallback<RESPONSE> implements PaginatedResponseCallback<RESPONSE> {
     private final Function<DATA,DATA> adapt;
     protected final PaginatedCollectionCallback<DATA> cb;
 
@@ -60,18 +62,10 @@ public abstract class PaginatedResponseTransformerCallback<DATA, RESPONSE extend
     }
 
     @Override
-    public void pagedResults(RESPONSE response, PaginatedGetRequest<RESPONSE> next) {
+    protected void handlerResults(RESPONSE response, boolean more) {
         List<DATA> res = adapt==null? response.getData():
                 response.getData().stream().map(adapt).collect(Collectors.toList());
-        callCompleted(res, next !=  null);
-        if(next != null){
-            handleNext(next);
-        }
-    }
 
-    protected void callCompleted(Collection<DATA> d, boolean more) {
-        cb.pagedResults(d, more);
+        cb.pagedResults(res, more);
     }
-
-    public abstract void handleNext(PaginatedGetRequest<RESPONSE> next);
 }

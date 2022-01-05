@@ -31,17 +31,11 @@ package com.coinbase.callback;
  *
  * @author antlen
  */
-public interface ResponseCallback<RESPONSE> {
+public interface ResponseCallback<RESPONSE> extends FailureCallback{
 
     /**
      * called when the request is complete.
      * @param response
      */
     void completed(RESPONSE response);
-
-    /**
-     * Called if there is an error with the request.
-     * @param throwable
-     */
-    void failed(Throwable throwable);
 }

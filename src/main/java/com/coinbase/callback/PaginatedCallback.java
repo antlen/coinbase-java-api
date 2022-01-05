@@ -1,10 +1,7 @@
 package com.coinbase.callback;
 
-import com.coinbase.client.api.request.PaginatedGetRequest;
 import com.coinbase.client.api.request.PaginatedRequest;
-import com.coinbase.client.api.request.RequestInvoker;
 import com.coinbase.domain.general.response.CbResponse;
-import com.coinbase.domain.pagination.response.CbPaginatedResponse;
 
 /**
  * The MIT License (MIT)
@@ -37,13 +34,13 @@ import com.coinbase.domain.pagination.response.CbPaginatedResponse;
  *
  * @author antlen
  */
-public interface PaginatedResponseCallback<T extends CbResponse> extends FailureCallback{
+public interface PaginatedCallback<T> extends FailureCallback{
 
     /**
      * Results from a paginated call.
      *
      * @param response
-     * @param next  - the next results. Can be null
+     * @param moreToCome  - whether there are more  results to come
      */
-    void pagedResults(T response, PaginatedRequest<T> next);
+    void pagedResults(T response, boolean moreToCome);
 }

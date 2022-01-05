@@ -40,7 +40,7 @@ import java.util.concurrent.Future;
  * @author antlen
  * @param <O>
  */
-public class PaginatedGetRequest<O extends CbPaginatedResponse<?>> extends AbstractRequest<O> {
+public class PaginatedGetRequest<O extends CbPaginatedResponse<?>> extends PaginatedRequest<O> {
     protected static final String LIMIT = "limit";
     protected static final String STARTING_AFTER = "starting_after";
 
@@ -51,10 +51,6 @@ public class PaginatedGetRequest<O extends CbPaginatedResponse<?>> extends Abstr
     public PaginatedGetRequest(Class<O> klass, WebTarget target, int pageSize) {
         super(klass, RequestType.GET, target);
         this.pageSize =pageSize;
-    }
-
-    public PaginatedGetRequest<O> next() {
-        return next;
     }
 
     @Override
@@ -74,10 +70,6 @@ public class PaginatedGetRequest<O extends CbPaginatedResponse<?>> extends Abstr
     public Future<O> async(PaginatedResponseCallback<O> cb) {
         setQueryParams();
         return new FutureWrapper(asyncJson().get(new PgCallBack(cb)));
-    }
-
-    public final Callable<O> prepare(PaginatedResponseCallback<O> delegate) {
-        return () -> async(delegate).get();
     }
 
     private void setQueryParams() {

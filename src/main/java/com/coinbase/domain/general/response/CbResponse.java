@@ -45,6 +45,13 @@ public class CbResponse<T>{
     @JsonProperty("errors")
     private List<CbMessage> errors;
 
+    public CbResponse(){
+    }
+
+    public CbResponse(T data){
+        this.data = data;
+    }
+
     /**
      * The underlying json object
      * @return

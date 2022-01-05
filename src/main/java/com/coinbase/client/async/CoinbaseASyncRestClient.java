@@ -3,6 +3,7 @@ package com.coinbase.client.async;
 import com.coinbase.callback.PaginatedCollectionCallback;
 import com.coinbase.client.api.CoinbaseRequestApi;
 import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.api.request.PaginatedRequest;
 import com.coinbase.client.async.callback.PaginatedResponseTransformerCallback;
 import com.coinbase.client.async.callback.ResponseTransformerCallback;
 import com.coinbase.client.api.request.PaginatedGetRequest;
@@ -57,10 +58,10 @@ public class CoinbaseASyncRestClient extends AbstractCoinbaseASyncRestClient imp
         i.async(new ResponseTransformerCallback(cb));
     }
 
-    protected <R> void invoke(PaginatedGetRequest<? extends CbPaginatedResponse<R>> i, PaginatedCollectionCallback<R> cb){
+    protected <R> void invoke(PaginatedRequest<? extends CbPaginatedResponse<R>> i, PaginatedCollectionCallback<R> cb){
         i.async(new PaginatedResponseTransformerCallback(cb){
             @Override
-            public void handleNext(PaginatedGetRequest next) {
+            public void handleNext(PaginatedRequest next) {
                 invoke(next, cb);
             }
         });

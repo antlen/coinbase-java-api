@@ -2,9 +2,9 @@ package com.coinbase.client.async;
 
 import com.coinbase.callback.PaginatedCollectionCallback;
 import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.api.request.PaginatedRequest;
 import com.coinbase.client.async.callback.AnyToBooleanResponse;
 import com.coinbase.client.api.CoinbaseRequestApi;
-import com.coinbase.client.api.request.PaginatedGetRequest;
 import com.coinbase.client.api.request.RequestInvoker;
 import com.coinbase.domain.account.CbAccount;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
@@ -32,7 +32,6 @@ import com.coinbase.exception.CbApiException;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * The MIT License (MIT)
@@ -83,7 +82,7 @@ public abstract class AbstractCoinbaseASyncRestClient implements CoinbaseASyncCl
 
     protected abstract <R> void invoke(RequestInvoker i, ResponseCallback<R> cb);
 
-    protected abstract  <R> void invoke(PaginatedGetRequest<? extends CbPaginatedResponse<R>> i,
+    protected abstract  <R> void invoke(PaginatedRequest<? extends CbPaginatedResponse<R>> i,
                                         PaginatedCollectionCallback<R> cb);
 
     @Override

@@ -1,10 +1,15 @@
-package com.coinbase.callback;
+package com.coinbase.client.async.callback;
 
-import com.coinbase.client.api.request.PaginatedGetRequest;
+import com.coinbase.callback.PaginatedCollectionCallback;
+import com.coinbase.callback.PaginatedResponseCallback;
 import com.coinbase.client.api.request.PaginatedRequest;
-import com.coinbase.client.api.request.RequestInvoker;
 import com.coinbase.domain.general.response.CbResponse;
 import com.coinbase.domain.pagination.response.CbPaginatedResponse;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * The MIT License (MIT)
@@ -30,20 +35,23 @@ import com.coinbase.domain.pagination.response.CbPaginatedResponse;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- *
- * Callback to receive the underlying results from a paginated request.  May be called multiple times.
- *
- * @param <T>
+ * internal base callback for handling pagination.
  *
  * @author antlen
+ *
+ * @param <RESPONSE>
  */
-public interface PaginatedResponseCallback<T extends CbResponse> extends FailureCallback{
+public abstract class HandlePaginationResponseCallback<RESPONSE extends CbResponse> implements PaginatedResponseCallback<RESPONSE> {
 
-    /**
-     * Results from a paginated call.
-     *
-     * @param response
-     * @param next  - the next results. Can be null
-     */
-    void pagedResults(T response, PaginatedRequest<T> next);
+    @Override
+    public final void pagedResults(RESPONSE response, PaginatedRequest<RESPONSE> next) {
+        handlerResults(response, next !=  null);
+        if(next != null){
+            handleNext(next);
+        }
+    }
+
+    protected abstract void handlerResults(RESPONSE response, boolean more);
+
+    protected abstract void handleNext(PaginatedRequest<RESPONSE> next);
 }

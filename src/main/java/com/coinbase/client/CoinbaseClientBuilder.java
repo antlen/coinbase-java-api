@@ -1,5 +1,6 @@
 package com.coinbase.client;
 
+import com.coinbase.client.api.StandaloneCoinbaseApiExecutor;
 import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.client.async.CoinbaseASyncRestClient;
 import com.coinbase.client.async.CoinbaseExecutorRestClient;
@@ -67,7 +68,11 @@ public class CoinbaseClientBuilder {
         return new CoinbaseSyncRestClient(buildApi());
     }
 
-    private CoinbaseRequestApi buildApi() {
+    public CoinbaseRequestApi buildApi() {
         return new CoinbaseDefaultRequestApi(connection);
+    }
+
+    public StandaloneCoinbaseApiExecutor buildExecutor(ExecutorService requestService,ExecutorService responseService){
+        return new StandaloneCoinbaseApiExecutor(buildApi(),requestService, responseService);
     }
 }
