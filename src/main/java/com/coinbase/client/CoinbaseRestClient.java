@@ -1,29 +1,35 @@
-package com.coinbase.client.async;
+package com.coinbase.client;
 
-import com.coinbase.callback.PaginatedCollectionCallback;
-import com.coinbase.callback.ResponseCallback;
 import com.coinbase.domain.account.CbAccount;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
+import com.coinbase.domain.account.response.CbAccountResponse;
 import com.coinbase.domain.address.CbAddress;
 import com.coinbase.domain.address.CbAddressTransaction;
-import com.coinbase.domain.address.request.CbCreateAddressRequest;
+import com.coinbase.domain.address.response.CbAddressResponse;
+import com.coinbase.domain.address.response.CbAddressTransactionResponse;
+import com.coinbase.domain.general.response.ResponseBody;
 import com.coinbase.domain.order.request.CbOrderRequest;
-import com.coinbase.domain.price.CbCurrencyCode;
-import com.coinbase.domain.price.CbExchangeRate;
-import com.coinbase.domain.price.CbPrice;
-import com.coinbase.domain.price.PriceType;
-import com.coinbase.domain.system.CbTime;
-import com.coinbase.domain.trade.CashTransactionType;
+import com.coinbase.domain.price.response.CbCurrencyCodeListResponse;
+import com.coinbase.domain.price.response.CbExchangeRateResponse;
+import com.coinbase.domain.price.response.CbPriceResponse;
+import com.coinbase.domain.system.response.CbTimeResponse;
 import com.coinbase.domain.trade.CbCashTransaction;
 import com.coinbase.domain.trade.CbTrade;
+import com.coinbase.domain.trade.response.CbCashTransactionResponse;
+import com.coinbase.domain.trade.response.CbTradeResponse;
+import com.coinbase.domain.address.request.CbCreateAddressRequest;
+import com.coinbase.domain.price.PriceType;
+import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.domain.trade.Side;
 import com.coinbase.domain.trade.request.CbCashTransactionRequest;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
 import com.coinbase.domain.transaction.request.CbMoneyRequest;
-import com.coinbase.domain.user.CbUser;
+import com.coinbase.domain.transaction.response.CbPaymentMethodResponse;
 import com.coinbase.domain.user.request.CbUserUpdateRequest;
+import com.coinbase.domain.user.response.CbUserResponse;
+
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * The MIT License (MIT)
@@ -49,11 +55,17 @@ import java.util.Collection;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * Coinbase client interface for all async api calls
+ * Coinbase client implementation for all api calls
  *
  * @author antlen
  */
-public interface CoinbaseASyncClient {
+public interface CoinbaseRestClient {
+
+    /**
+     * Change the page size for paginated requests
+     * @param pageSize
+     */
+    void setPageSize(int pageSize);
 
     /**
      * reestablish the connection.
@@ -61,9 +73,9 @@ public interface CoinbaseASyncClient {
     void reconnect();
 
     /**
-     * Ping the service to see if it is still aliver or to keep it alive.
+     * Ping the service to see if it is still alive or to keep it alive.
      */
-    void ping(ResponseCallback<Boolean> cb);
+    void ping();
 
     /**
      * Turns on logginf og the raw JSON for every response.
@@ -77,61 +89,78 @@ public interface CoinbaseASyncClient {
      * use permissions wallet:user:email and wallet:user:read. If current request has a wallet:transactions:send scope,
      * then the response will contain a boolean sends_disabled field that indicates if the user’s send
      * functionality has been disabled.
-     * @param cb
+     *
+     * @return
      */
-    void fetchUser(ResponseCallback<CbUser> cb);
+    CbUserResponse getUser();
 
     /**
      * Get any user’s public information with their ID.
      *
-     * @param cb
      * @param userId
+     * @return
      */
-    void fetchUser(ResponseCallback<CbUser> cb, String userId);
+    CbUserResponse getUser(String userId);
 
     /**
      * Lists current user’s payment methods.
-     * @param cb
+     *
+     * @return
      */
-    void fetchPaymentMethods(PaginatedCollectionCallback<CbPaymentMethod> cb);
+    ResponseBody<List<CbPaymentMethod>>  getPaymentMethods();
+
+    /**
+     * Lists current user’s payment methods.
+     *
+     * @param maxRecords
+     * @return
+     */
+    ResponseBody<List<CbPaymentMethod>>  getPaymentMethods(int maxRecords);
 
     /**
      * Show current user’s payment method.
      *
-     * @param cb
      * @param id
+     * @return
      */
-    void fetchPaymentMethod(ResponseCallback<CbPaymentMethod> cb, String id);
+    CbPaymentMethodResponse getPaymentMethod(String id);
 
     /**
      * Modify current user and their preferences.
      *
-     * @param cb
      * @param u
+     * @return
      */
-    void updateUser(ResponseCallback<CbUser> cb, CbUserUpdateRequest u);
+    CbUserResponse updateUser(CbUserUpdateRequest u);
 
-    /**
+    /***
      * Lists current user’s accounts to which the authentication method has access to.
-     *
-     * @param cb
+     * @return
      */
-    void fetchAccounts(PaginatedCollectionCallback<CbAccount> cb);
+    ResponseBody<List<CbAccount>> getAccounts();
+
+    /***
+     * Lists current user’s accounts to which the authentication method has access to.
+     * @param maxRecords
+     * @return
+     */
+    ResponseBody<List<CbAccount>> getAccounts(int maxRecords);
 
     /**
      * Show current user’s account. To access the primary account for a given currency,
      * a currency string (BTC or ETH) can be used instead of the account id in the URL.
-     * @param cb
-     * @param id
+     *
+     * @return
      */
-    void fetchAccount(ResponseCallback<CbAccount> cb, String id);
+    CbAccountResponse getAccount(String id);
 
     /**
      * Modifies user’s account name.
-     * @param cb
+     *
      * @param req
+     * @return
      */
-    void updateAccountName(ResponseCallback<CbAccount> cb, CbAccountUpdateRequest req);
+    CbAccountResponse updateAccountName(String account, CbAccountUpdateRequest req);
 
     /**
      * Removes user’s account. In order to remove an account it can’t be:
@@ -140,96 +169,127 @@ public interface CoinbaseASyncClient {
      * Account with non-zero balance
      * Fiat account
      * Vault with a pending withdrawal
-     * @param cb
+     *
      * @param id
+     * @return
      */
-    void deleteAccount(ResponseCallback<Boolean> cb, String id);
+    boolean deleteAccount(String id);
 
     /**
-     *Lists addresses for an account.
+     * Lists addresses for an account.
      * <p>
      * Important: Addresses should be considered one time use only.
      * Please see createAddress() to create a new address.
-     * @param cb
+     *
      * @param id
+     * @return
      */
-    void fetchAddresses(PaginatedCollectionCallback<CbAddress> cb, String id);
+    ResponseBody<List<CbAddress>>  getAddresses(String id);
+
+    /**
+     * Lists addresses for an account.
+     * <p>
+     * Important: Addresses should be considered one time use only.
+     * Please see createAddress() to create a new address.
+     *
+     * @param id
+     * @param maxRecords
+     * @return
+     */
+    ResponseBody<List<CbAddress>>  getAddresses(String id, int maxRecords);
 
     /**
      * Show an individual address for an account. A regular bitcoin, bitcoin cash, litecoin or ethereum address
      * can be used in place of addressId but the address has to be associated to the correct account.
-     * @param cb
+     *
      * @param account
      * @param addressId
+     * @return
      */
-    void fetchAddress(ResponseCallback<CbAddress> cb, String account, String addressId);
+    CbAddressResponse getAddress(String account, String addressId);
 
 
     /**
      * Creates a new address for an account.
      *
      * Addresses can be created for wallet account types.
-     * @param cb
+     * @param account
      * @param request
+     * @return
      */
-    void createAddress(ResponseCallback<CbAddress> cb, CbCreateAddressRequest request);
+    CbAddressResponse createAddress(String account, CbCreateAddressRequest request);
 
     /**
      * List transactions that have been sent to a specific address.
      * A regular bitcoin, bitcoin cash, litecoin or ethereum address can be used in place of address_id but
      * the address has to be associated to the correct account.
-     * @param cb
+     *
      * @param accountId
      * @param address
+     *
+     * @return
      */
-    void fetchTransactions(PaginatedCollectionCallback<CbAddressTransaction> cb, String accountId, String address);
+    ResponseBody<List<CbAddressTransaction>>  getTransactions(String accountId, String address);
 
     /**
-     * fetch the API server time.
+     * List transactions that have been sent to a specific address.
+     * A regular bitcoin, bitcoin cash, litecoin or ethereum address can be used in place of address_id but
+     * the address has to be associated to the correct account.
+     * @param accountId
+     * @param address
+     * @param maxRecords
+     * @return
+     */
+    ResponseBody<List<CbAddressTransaction>>  getTransactions(String accountId, String address, int maxRecords);
+
+    /**
+     * Get the API server time.
      * <p>
      * This endpoint doesn’t require authentication.
-     * @param cb
-     */
-    void fetchServerTime(ResponseCallback<CbTime> cb);
-
-    /**
-     * fetch the current price from the exchange
-     * @param cb
-     * @param t
-     * @param pair
-     */
-    void fetchPrice(ResponseCallback<CbPrice> cb, PriceType t, String pair);
-
-    /**
-     * fetch the spot price at 'date' from the exchange
      *
-     * @param cb
-     * @param pair
-     * @param date
+     * @return
      */
-    void fetchSpotPrice(ResponseCallback<CbPrice> cb, String pair, LocalDate date);
+    CbTimeResponse getServerTime();
+
+    /**
+     * gets the current price from the exchange
+     *
+     * @param t
+     * @param ticker
+     * @return
+     */
+    CbPriceResponse getPrice(String ticker, PriceType t);
+
+    /**
+     * gets the spot price at 'date' from the exchange
+     *
+     * @param ticker
+     * @param date
+     * @return
+     */
+    CbPriceResponse getSpotPrice(String ticker, LocalDate date);
 
     /**
      * List known currencies. Currency codes will conform to the ISO 4217 standard where possible.
      * Currencies which have or had no representation in ISO 4217 may use a custom code (e.g. BTC).
      * <p>
      * This endpoint doesn’t require authentication.
-     * @param cb
+     *
+     * @return
      */
-    void fetchCurrencyCodes(ResponseCallback<Collection<CbCurrencyCode>> cb);
+    CbCurrencyCodeListResponse getCurrencyCodes();
 
     /**
-     * fetch the exchange rates
-     * @param cb
-     * @param base
+     * get the exchange rates
+     * @return
      */
-    void fetchExchangeRate(ResponseCallback<CbExchangeRate> cb, String base);
+    CbExchangeRateResponse getExchangeRate(String base);
 
     /**
-     * fetch the exchange rates, defaults to USD.
-     * @param cb
+     * get the exchange rates, defaults to USD.
+     * @return
      */
-    void fetchExchangeRate(ResponseCallback<CbExchangeRate> cb);
+    CbExchangeRateResponse getExchangeRate();
 
     /**
      * Send funds to a bitcoin address, bitcoin cash address, litecoin address, ethereum address,
@@ -240,129 +300,130 @@ public interface CoinbaseASyncClient {
      * or other issue.
      *
      * When used with OAuth2 authentication, this endpoint requires two factor authentication.
-     * @param cb
      * @param req
+     * @return
      */
-    void sendMoney(ResponseCallback<CbAddressTransaction> cb, CbMoneyRequest req);
+    CbAddressTransactionResponse sendMoney(String account, CbMoneyRequest req);
 
     /**
      * Requests money from an email address.
      *
      * HTTP REQUEST
      * POST https://api.coinbase.com/v2/accounts/:account_id/transactions
-     * @param cb
+     * @param account
      * @param req
+     * @return
      */
-    void requestMoney(ResponseCallback<CbAddressTransaction> cb, CbMoneyRequest req);
+    CbAddressTransactionResponse requestMoney(String account, CbMoneyRequest req);
 
     /**
      * Transfer bitcoin, bitcoin cash, litecoin or ethereum between two of a user’s accounts. Following transfers are allowed:
      *
      * wallet to wallet
      * wallet to vault
-     *
-     * @param cb
+     * @param account
      * @param req
+     * @return
      */
-    void transferMoney(ResponseCallback<CbAddressTransaction> cb, CbMoneyRequest req);
+    CbAddressTransactionResponse transferMoney(String account, CbMoneyRequest req);
 
     /**
-     * Send any type of Money Request, the axction will depend on the type.Sprint 4
-     *
-     * @param cb
+     * Send any type of Money Request, the axction will depend on the type.
+     * @param account
      * @param req
+     * @return
      */
-    void sendMoneyRequest(ResponseCallback<CbAddressTransaction> cb, CbMoneyRequest req);
+    CbAddressTransactionResponse sendMoneyRequest(String account, CbMoneyRequest req);
 
     /**
-     * fetch a list of all buy or sell trades for the account
-     * @param cb
+     * Gets a list of all buy or sell trades for the account
      * @param account
      * @param side
+     * @return
      */
-    void fetchTrades(PaginatedCollectionCallback<CbTrade> cb, String account, Side side);
+    ResponseBody<List<CbTrade>>  getTrades(String account, Side side);
+
+    /**
+     * Gets a list of all buy or sell trades for the account
+     * @param account
+     * @param side
+     * @param maxRecords
+     *
+     * @return
+     */
+    ResponseBody<List<CbTrade>>  getTrades(String account, Side side, int maxRecords);
 
     /**
      * loads an individual trade
-     * @param cb
-     * @param account
      * @param id
      * @param side
+     * @return
      */
-    void fetchTrade(ResponseCallback<CbTrade> cb, String account, String id, Side side);
+    CbTradeResponse getTrade(String account, String id, Side side);
 
     /**
      * Lists cash transaction (deposit / withdrawal)  for an account.
-     * @param cb
      * @param account
      * @param type
+     * @return
      */
-    void fetchCashTransactions(PaginatedCollectionCallback<CbCashTransaction> cb,
-                               String account, CashTransactionType type);
-
+    ResponseBody<List<CbCashTransaction>>  getCashTransactions(String account, CashTransactionType type);
 
     /**
-     * fetch a single cash transaction (deposit / withdrawal)
-     * @param cb
+     * Lists cash transaction (deposit / withdrawal)  for an account.
+     * @param account
+     * @param type
+     * @param maxRecords
+     * @return
+     */
+    ResponseBody<List<CbCashTransaction>>  getCashTransactions(String account, CashTransactionType type, int maxRecords);
+
+    /**
+     *  Gets a single cash transaction (deposit / withdrawal) .
      * @param account
      * @param id
      * @param type
+     * @return
      */
-    void fetchCashTransaction(ResponseCallback<CbCashTransaction> cb,
-                              String account, String id, CashTransactionType type);
+    CbCashTransactionResponse getCashTransaction(String account, String id, CashTransactionType type);
 
     /**
      * cash transaction (deposit / withdrawal) of user-defined amount of funds to a fiat account.
      * @param req
+     * @param type
      * @return
      */
-    void executeCashTransaction(ResponseCallback<CbCashTransaction> cb, CbCashTransactionRequest req, CashTransactionType type);
+    CbCashTransactionResponse executeCashTransaction(CbCashTransactionRequest req, CashTransactionType type);
 
     /**
      * Completes a cash transaction (deposit / withdrawal) that is created in commit: false state.
-     *
-     * @param cb
      * @param account
      * @param id
      * @param type
+     * @return
      */
-    void commitCashTransaction(ResponseCallback<CbCashTransaction> cb,String account, String id, CashTransactionType type);
+    CbCashTransactionResponse commitCashTransaction(String account, String id, CashTransactionType type);
 
     /**
-     * Completes a cash transaction (deposit / withdrawal) that is created in commit: false state.
-     * @param cb
-     * @param t
-     */
-    void commitCashTransaction(ResponseCallback<CbCashTransaction> cb, CbCashTransaction t);
-
-    /**
-     * Places a buy order to the exchange
+     * Places an order to the exchange
      * @param request
      * @return
      */
-    void placeBuyOrder(ResponseCallback<CbTrade> cb, CbOrderRequest request);
+    CbTradeResponse placeBuyOrder(String account, CbOrderRequest request);
 
     /**
-     * Places a sell order to the exchange
+     * Places an order to the exchange
      * @param request
      * @return
      */
-    void placeSellOrder(ResponseCallback<CbTrade> cb, CbOrderRequest request);
-
-    /**
-     * commits a previously uncommitted trade
-     * @param cb
-     * @param t
-     */
-    void commitOrder(ResponseCallback<CbTrade> cb, CbTrade t);
+    CbTradeResponse placeSellOrder(String account, CbOrderRequest request);
 
 
     /**
      * commits a previously uncommitted trade
-     * @param cb
      * @param account
      * @param orderId
-     * @param side
+     * @return
      */
-    void commitOrder(ResponseCallback<CbTrade> cb, String account, String orderId, Side side);
+    CbTradeResponse commitOrder(String account, String orderId, Side side);
 }

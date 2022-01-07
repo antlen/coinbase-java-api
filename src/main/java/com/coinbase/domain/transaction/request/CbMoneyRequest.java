@@ -83,13 +83,12 @@ public class CbMoneyRequest extends CbAmountRequest {
      * @param amount - Amount to be sent
      * @param currency - Currency for the amount
      */
-    CbMoneyRequest(String type, String from, String to, String amount, String currency){
-        this(type, from,to, amount, currency, null,false,null,null,
+    CbMoneyRequest(String type, String to, String amount, String currency){
+        this(type, to, amount, currency, null,false,null,null,
                 false,null);
     }
     /**
      *
-     * @param from - the account to send from
      * @param to - A bitcoin address, bitcoin cash address, litecoin address, ethereum address, or an email of the recipient
      * @param amount - Amount to be sent
      * @param currency - Currency for the amount
@@ -100,10 +99,10 @@ public class CbMoneyRequest extends CbAmountRequest {
      * @param isToFinancialInstitution - Optional	Whether this send is to another financial institution or exchange. Required if this send is to an address and is valued at over USD$3000.
      * @param financialInstitutionWebsite - The website of the financial institution or exchange. Required if to_financial_institution is true.
      */
-    CbMoneyRequest(String type, String from, String to, String amount, String currency, String description,
+    CbMoneyRequest(String type, String to, String amount, String currency, String description,
                           Boolean skipNotifications, String fee, String idem, Boolean isToFinancialInstitution,
                           String financialInstitutionWebsite) {
-       super(from,amount, currency);
+       super(amount, currency);
         this.type= type;
         this.to = to;
         this.description = description;

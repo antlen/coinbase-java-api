@@ -1,10 +1,4 @@
-package com.coinbase.client.api.request;
-
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.domain.general.response.CbResponse;
-
-import javax.ws.rs.client.WebTarget;
-import java.util.concurrent.Future;
+package com.coinbase.callback;
 
 /**
  * The MIT License (MIT)
@@ -30,24 +24,21 @@ import java.util.concurrent.Future;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * Wrapper for a Put request
+ *
+ * Callback to receive the results of a request.
+ *
+ * @param <RESPONSE>
  *
  * @author antlen
- * @param <I>
- * @param <O>
  */
-public class PutRequest<I,O extends CbResponse> extends AbstractEntityRequest<I,O> {
-    public PutRequest(Class<O> klass, WebTarget target) {
-        super(klass, RequestType.PUT, target);
-    }
+public interface CoinbaseCallback<RESPONSE>{
 
-    @Override
-    public O sync() {
-        return jsonRequest().put(data, klass);
-    }
+    /**
+     * called when a response is received.
+     * @param response
+     * @param moreToCome - whether additional callbacks are expected
+     */
+    void onResponse(RESPONSE response, boolean moreToCome);
 
-    @Override
-    public Future<O> async(ResponseCallback<O> cb) {
-        return new FutureWrapper(asyncJson().put(data, new CallBack(cb)));
-    }
+    default void failed(Throwable throwable){};
 }

@@ -1,7 +1,4 @@
 package com.coinbase.callback;
-
-import java.util.Collection;
-
 /**
  * The MIT License (MIT)
  *
@@ -27,21 +24,22 @@ import java.util.Collection;
  *
  * ------------------------------------------------
  *
- * Callback to receive the underlying results from a paginated request.  May be called multiple times.
+ * A safe response that catches any exception and calls failed(e).
  *
- * @param <T>
+ * @param <RESPONSE>
  *
  * @author antlen
  */
-public interface PaginatedCollectionCallback<T> {
+public abstract class SafeCoinbaseCallback<RESPONSE> implements CoinbaseCallback<RESPONSE>{
 
-    /**
-     * Results from a paginated call.
-     *
-     * @param response
-     * @param moreToCome  - whether there are more results to come
-     */
-    void pagedResults(Collection<T> response, boolean moreToCome);
+    protected abstract void onFailsafeResponse(RESPONSE t, boolean moreToCome);
 
-    void failed(Throwable throwable);
+    @Override
+    public final void onResponse(RESPONSE t, boolean moreToCome) {
+        try{
+            onFailsafeResponse(t, moreToCome);
+        }catch(Exception e){
+            failed(e);
+        }
+    }
 }

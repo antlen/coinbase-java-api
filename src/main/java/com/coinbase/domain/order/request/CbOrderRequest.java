@@ -45,8 +45,8 @@ public class CbOrderRequest extends CbAmountRequest {
     @JsonProperty("quote")
     private final Boolean quote;
 
-    CbOrderRequest(String account,String amount, String currency, String paymentMethod, Boolean allowQueuing, Boolean commit, Boolean quote) {
-        super(account, amount, currency);
+    CbOrderRequest(String amount, String currency, String paymentMethod, Boolean allowQueuing, Boolean commit, Boolean quote) {
+        super(amount, currency);
 
         this.paymentMethod = paymentMethod;
         this.allowQueuing = allowQueuing;

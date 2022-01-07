@@ -56,7 +56,7 @@ public class CbTransferMoneyRequestBuilder extends CbTransactionTypeRequestBuild
 
     @Override
     public CbMoneyRequest doBuild() {
-        return new CbMoneyRequest(type, from,toAccount, amount,currency,description,null,
+        return new CbMoneyRequest(type, toAccount, amount,currency,description,null,
                 null,null, null, null);
     }
 

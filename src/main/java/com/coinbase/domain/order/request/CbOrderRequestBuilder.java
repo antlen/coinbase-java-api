@@ -87,7 +87,7 @@ public class CbOrderRequestBuilder extends CbAmountRequestBuilder<CbOrderRequest
 
     @Override
     public CbOrderRequest doBuild() {
-        return new CbOrderRequest(from, amount, currency, paymentMethod, allowQueuing, commit, quote);
+        return new CbOrderRequest(amount, currency, paymentMethod, allowQueuing, commit, quote);
     }
 
 }
