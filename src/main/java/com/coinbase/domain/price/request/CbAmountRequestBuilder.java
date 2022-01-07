@@ -1,8 +1,7 @@
 package com.coinbase.domain.price.request;
 
-import com.coinbase.domain.account.CbAccount;
 import com.coinbase.util.ValidationUtils;
-import com.coinbase.builder.AbstractValidatingBuilder;
+
 /**
  * The MIT License (MIT)
  *
@@ -34,21 +33,26 @@ import com.coinbase.builder.AbstractValidatingBuilder;
  * @author antlen
  */
 public abstract class CbAmountRequestBuilder<B extends CbAmountRequestBuilder,
-        O extends CbAmountRequest> extends AbstractValidatingBuilder<O> {
-    protected String from;
+        O extends CbAmountRequest> {
     protected String amount;
     protected String currency;
 
-    @Override
-     public final void validate(){
-        ValidationUtils.validateNotNull(from, "Account");
+    public final O build(){
+        validate();
+
+        return doBuild();
+    }
+
+    public final void validate(){
         ValidationUtils.validateNotNull(amount, "Amount");
         ValidationUtils.validateNotNull(currency, "Currency");
 
         doValidate();
     }
 
+
     protected abstract void doValidate();
+    protected abstract O doBuild();
     protected abstract B getThis();
 
     public B setAmount(String amount) {
@@ -61,10 +65,6 @@ public abstract class CbAmountRequestBuilder<B extends CbAmountRequestBuilder,
         return getThis();
     }
 
-    public String getFrom() {
-        return from;
-    }
-
     public String getAmount() {
         return amount;
     }
@@ -73,12 +73,4 @@ public abstract class CbAmountRequestBuilder<B extends CbAmountRequestBuilder,
         return currency;
     }
 
-    public CbAmountRequestBuilder setFrom(CbAccount account) {
-        return setFrom(account.getId());
-    }
-
-    public CbAmountRequestBuilder setFrom(String from) {
-        this.from = from;
-        return this;
-    }
 }

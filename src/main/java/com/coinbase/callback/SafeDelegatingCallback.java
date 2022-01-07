@@ -1,10 +1,4 @@
-package com.coinbase.client.api.request;
-
-import com.coinbase.domain.general.response.CbResponse;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-
+package com.coinbase.callback;
 /**
  * The MIT License (MIT)
  *
@@ -29,23 +23,23 @@ import javax.ws.rs.client.WebTarget;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * Allows adding an entity to send with the request. This will be used for put and post requests.
+ *
+ * A safe response that catches any exception and calls failed(e) on the delegate callback.
+ *
+ * @param <RESPONSE>
+ * @param <DELEGATE_TYPE>
  *
  * @author antlen
- * @param <I>
- * @param <O>
  */
-public abstract class AbstractEntityRequest<I,O extends CbResponse> extends AbstractRequest<O> implements EntityRequestInvoker<I,O>{
+public abstract class SafeDelegatingCallback<RESPONSE, DELEGATE_TYPE> extends SafeCoinbaseCallback<RESPONSE>{
+    protected final CoinbaseCallback<DELEGATE_TYPE> callback;
 
-    protected Entity<I> data;
-
-    public AbstractEntityRequest(Class<O> klass, RequestType type, WebTarget target) {
-        super(klass, type, target);
+    public SafeDelegatingCallback(CoinbaseCallback<DELEGATE_TYPE> callback) {
+        this.callback = callback;
     }
 
     @Override
-    public EntityRequestInvoker<I,O> with(I input) {
-        data = Entity.json(input);;
-        return this;
+    public final void failed(Throwable throwable) {
+        callback.failed(throwable);
     }
 }

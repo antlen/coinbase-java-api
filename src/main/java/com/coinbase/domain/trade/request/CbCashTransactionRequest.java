@@ -38,8 +38,8 @@ public class CbCashTransactionRequest extends CbAmountRequest {
     @JsonProperty("commit")
     private final Boolean commit;
 
-    CbCashTransactionRequest(String account, String amount, String currency, String paymentMethod, Boolean commit) {
-        super(account, amount, currency);
+    CbCashTransactionRequest(String amount, String currency, String paymentMethod, Boolean commit) {
+        super(amount, currency);
         this.paymentMethod = paymentMethod;
         this.commit = commit;
     }

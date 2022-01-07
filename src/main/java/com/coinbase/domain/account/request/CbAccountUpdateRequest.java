@@ -33,14 +33,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class CbAccountUpdateRequest {
 
-    @JsonIgnore
-    private final String account;
-
     @JsonProperty("name")
     private final String name;
 
-    public CbAccountUpdateRequest(String account, String name) {
-        this.account= account;
+    public CbAccountUpdateRequest(String name) {
         this.name = name;
     }
 
@@ -53,11 +49,4 @@ public class CbAccountUpdateRequest {
         return name;
     }
 
-    /**
-     * The account identifier
-     * @return
-     */
-    public String getAccount() {
-        return account;
-    }
 }

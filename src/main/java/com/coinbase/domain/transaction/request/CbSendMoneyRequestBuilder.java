@@ -47,7 +47,7 @@ public class CbSendMoneyRequestBuilder extends CbTransactionTypeRequestBuilder<C
 
     @Override
     public CbMoneyRequest doBuild() {
-        return new CbMoneyRequest(type, from,toAddress, amount,currency,description,skipNotifications,
+        return new CbMoneyRequest(type, toAddress, amount,currency,description,skipNotifications,
                 fee,idem, isToFinancialInstitution, financialInstitutionWebsite);
     }
 

@@ -1,8 +1,7 @@
-package com.coinbase.client.connection.auth;
+package com.coinbase.client.security;
 
 import com.coinbase.exception.CbApiException;
 import org.apache.commons.codec.binary.Hex;
-import com.coinbase.client.connection.EndPoint;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,7 +14,7 @@ import java.util.Map;
 /**
  * The MIT License (MIT)
  *
- *	Copyright (c) 2016 antlen
+ *	Copyright (c) 2021 antlen
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -40,14 +39,14 @@ import java.util.Map;
  *
  * @author antlen
  */
-public class CoinbaseApiV2SecuredEndpoint implements SecuredEndpoint {
+public class CoinbaseApiV2AuthHeaderGenerator implements HeaderGenerator {
     public static final String ALGO = "HmacSHA256";
     private static final String API_DATE = "2021-11-05";
 
     private final String apiKey;
     private final SecretKeySpec keySpec;
 
-    public CoinbaseApiV2SecuredEndpoint(String apiKey, byte[] secretKey) {
+    public CoinbaseApiV2AuthHeaderGenerator(String apiKey, byte[] secretKey) {
         this.apiKey = apiKey;
         this.keySpec = new SecretKeySpec(secretKey, ALGO);
     }
@@ -92,10 +91,5 @@ public class CoinbaseApiV2SecuredEndpoint implements SecuredEndpoint {
         headers.put("CB-VERSION", API_DATE);
         headers.put("CB-ACCESS-SIGN", generateSign(timestamp, path, method, body));
         return headers;
-    }
-
-    @Override
-    public EndPoint getEndpoint() {
-        return EndPoint.V2;
     }
 }
