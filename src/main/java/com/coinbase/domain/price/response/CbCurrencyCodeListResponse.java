@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.annotation.Generated;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The MIT License (MIT)
@@ -37,5 +38,5 @@ import java.util.Collection;
  */
 @Generated("jsonschema2pojo")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CbCurrencyCodeListResponse extends CbResponse<Collection<CbCurrencyCode>> {
+public class CbCurrencyCodeListResponse extends CbResponse<List<CbCurrencyCode>> {
 }

@@ -1,17 +1,4 @@
-package com.coinbase.client.api.request;
-
-import com.coinbase.callback.PaginatedResponseCallback;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.domain.general.response.CbResponse;
-import com.coinbase.domain.pagination.response.CbPaginatedResponse;
-import com.coinbase.exception.CbApiHttpException;
-
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
+package com.coinbase.callback;
 /**
  * The MIT License (MIT)
  *
@@ -36,28 +23,23 @@ import java.util.concurrent.Future;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * Wrapper for a paginated request
+ *
+ * A safe response that catches any exception and calls failed(e).
+ *
+ * @param <RESPONSE>
  *
  * @author antlen
- * @param <O>
  */
-public abstract class PaginatedRequest<O extends CbResponse> extends AbstractRequest<O> {
-    private PaginatedRequest<O> next = null;
+public abstract class SafeCoinbaseCallback<RESPONSE> implements CoinbaseCallback<RESPONSE>{
 
-    public PaginatedRequest(Class<O> klass, RequestType type, WebTarget target) {
-        super(klass, type, target);
-    }
+    protected abstract void onFailsafeResponse(RESPONSE t, boolean moreToCome);
 
-    public final PaginatedRequest<O> next() {
-        return next;
-    }
-
-    protected final void setNext(PaginatedRequest<O> next){
-        this.next=next;
-    }
-    public abstract Future<O> async(PaginatedResponseCallback<O> cb);
-
-    public final Callable<O> prepare(PaginatedResponseCallback<O> delegate) {
-        return () -> async(delegate).get();
+    @Override
+    public final void onResponse(RESPONSE t, boolean moreToCome) {
+        try{
+            onFailsafeResponse(t, moreToCome);
+        }catch(Exception e){
+            failed(e);
+        }
     }
 }

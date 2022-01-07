@@ -32,9 +32,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public abstract class CbAmountRequest {
 
-    @JsonIgnore
-    private final String from;
-
     @JsonProperty("amount")
     private final String amount;
 
@@ -43,24 +40,13 @@ public abstract class CbAmountRequest {
 
     /**
      *
-     * @param from - the account
      * @param amount - the amount
      * @param currency - the currency of the amount
      */
-    protected CbAmountRequest(String from, String amount, String currency) {
-        this.from = from;
+    protected CbAmountRequest(String amount, String currency) {
         this.amount = amount;
         this.currency = currency;
     }
-
-    /**
-     * The account it is from
-     * @return
-     */
-    public String getFrom() {
-        return from;
-    }
-
 
     /**
      * The amount

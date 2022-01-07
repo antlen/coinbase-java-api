@@ -32,19 +32,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class CbCreateAddressRequest {
 
-    @JsonIgnore
-    private final String account;
-
     @JsonProperty("name")
     private final String name;
 
     /**
      *
-     * @param account - The account identifier
      * @param name - The name for the address
      */
-    public CbCreateAddressRequest(String account, String name) {
-        this.account= account;
+    public CbCreateAddressRequest(String name) {
         this.name = name;
     }
 
@@ -57,11 +52,4 @@ public class CbCreateAddressRequest {
         return name;
     }
 
-    /**
-     * The account identifier
-     * @return
-     */
-    public String getAccount() {
-        return account;
-    }
 }

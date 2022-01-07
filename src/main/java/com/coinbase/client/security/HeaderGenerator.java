@@ -1,15 +1,12 @@
-package com.coinbase.client.async.callback;
+package com.coinbase.client.security;
 
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.domain.general.response.CbResponse;
-
-import javax.ws.rs.client.InvocationCallback;
-import java.util.function.Function;
+import java.net.URI;
+import java.util.Map;
 
 /**
  * The MIT License (MIT)
  *
- *	Copyright (c) 2021 antlen
+ *	Copyright (c) 2016 antlen
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -30,37 +27,18 @@ import java.util.function.Function;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * internal base callback for handling conversion into the underlying data.
+ *  Generates the authorization headers for the endpoint.
  *
  * @author antlen
- * @param <DATA>
- * @param <RESPONSE>
  */
-public class ResponseTransformerCallback<DATA, RESPONSE extends CbResponse<DATA>> implements ResponseCallback<RESPONSE> {
-    private final Function<DATA,DATA> adapt;
-    private final ResponseCallback<DATA> cb;
+public interface HeaderGenerator {
+    /**
+     * Generates a Map of heads to be added into the request.
+     * @param uri
+     * @param method
+     * @param body
+     * @return
+     */
+    Map<String, String> generateHeaders(URI uri, String method, String body);
 
-    public ResponseTransformerCallback(ResponseCallback<DATA> cb) {
-        this(cb, null);
-    }
-
-    public ResponseTransformerCallback(ResponseCallback<DATA> cb, Function<DATA,DATA> adapt) {
-        this.cb = cb;
-        this.adapt=adapt;
-    }
-
-    @Override
-    public void failed(Throwable throwable) {
-        cb.failed(throwable);
-    }
-
-    @Override
-    public final void completed(RESPONSE response) {
-        DATA d = adapt==null?response.getData(): adapt.apply(response.getData());
-        callCompleted(d);
-    }
-
-    protected void callCompleted(DATA d) {
-        cb.completed(d);
-    }
 }

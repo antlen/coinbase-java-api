@@ -1,8 +1,5 @@
 package com.coinbase.callback;
 
-import com.coinbase.client.api.request.PaginatedRequest;
-import com.coinbase.domain.general.response.CbResponse;
-
 /**
  * The MIT License (MIT)
  *
@@ -28,19 +25,20 @@ import com.coinbase.domain.general.response.CbResponse;
  *
  * ------------------------------------------------
  *
- * Callback to receive the underlying results from a paginated request.  May be called multiple times.
+ * Callback to receive the results of a request.
  *
- * @param <T>
+ * @param <RESPONSE>
  *
  * @author antlen
  */
-public interface PaginatedCallback<T> extends FailureCallback{
+public interface CoinbaseCallback<RESPONSE>{
 
     /**
-     * Results from a paginated call.
-     *
+     * called when a response is received.
      * @param response
-     * @param moreToCome  - whether there are more  results to come
+     * @param moreToCome - whether additional callbacks are expected
      */
-    void pagedResults(T response, boolean moreToCome);
+    void onResponse(RESPONSE response, boolean moreToCome);
+
+    default void failed(Throwable throwable){};
 }

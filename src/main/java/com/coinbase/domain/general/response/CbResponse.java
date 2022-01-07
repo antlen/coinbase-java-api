@@ -37,7 +37,7 @@ import java.util.List;
  * @author antlen
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CbResponse<T>{
+public class CbResponse<T> implements ResponseBody<T>{
 
     private T data;
     @JsonProperty("warnings")
@@ -56,6 +56,7 @@ public class CbResponse<T>{
      * The underlying json object
      * @return
      */
+    @Override
     public T getData() {
         return data;
     }

@@ -1,6 +1,5 @@
 package com.coinbase.domain.user.request;
 
-import com.coinbase.builder.Builder;
 import com.coinbase.domain.user.CbUser;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author antlen
  */
-public class CbUserUpdateBuilder implements Builder<CbUserUpdateRequest> {
+public class CbUserUpdateBuilder {
     private String name;
     private String timeZone;
     private String nativeCurrency;
@@ -42,24 +41,24 @@ public class CbUserUpdateBuilder implements Builder<CbUserUpdateRequest> {
         nativeCurrency=u.getNativeCurrency();
     }
 
-    @Override
     public CbUserUpdateRequest build() {
         return new CbUserUpdateRequest(name, timeZone, nativeCurrency);
     }
 
     @JsonProperty("name")
-    public Builder<CbUserUpdateRequest>  setName(String name) {
+    public CbUserUpdateBuilder setName(String name) {
         this.name=name;
         return this;
     }
     @JsonProperty("time_zone")
-    public Builder<CbUserUpdateRequest>  setTimeZone(String timeZone) {
+    public CbUserUpdateBuilder setTimeZone(String timeZone) {
         this.timeZone=timeZone;
         return this;
     }
     @JsonProperty("native_currency")
-    public Builder<CbUserUpdateRequest>  setNativeCurrency(String nativeCurrency) {
+    public CbUserUpdateBuilder setNativeCurrency(String nativeCurrency) {
         this.nativeCurrency=nativeCurrency;
         return this;
     }
+
 }

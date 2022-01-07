@@ -1,16 +1,4 @@
-package com.coinbase.client.async.callback;
-
-import com.coinbase.callback.PaginatedCollectionCallback;
-import com.coinbase.callback.PaginatedResponseCallback;
-import com.coinbase.client.api.request.PaginatedRequest;
-import com.coinbase.domain.general.response.CbResponse;
-import com.coinbase.domain.pagination.response.CbPaginatedResponse;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+package com.coinbase.callback;
 /**
  * The MIT License (MIT)
  *
@@ -35,23 +23,23 @@ import java.util.stream.Collectors;
  *	SOFTWARE.
  *
  * ------------------------------------------------
- * internal base callback for handling pagination.
  *
- * @author antlen
+ * A safe response that catches any exception and calls failed(e) on the delegate callback.
  *
  * @param <RESPONSE>
+ * @param <DELEGATE_TYPE>
+ *
+ * @author antlen
  */
-public abstract class HandlePaginationResponseCallback<RESPONSE extends CbResponse> implements PaginatedResponseCallback<RESPONSE> {
+public abstract class SafeDelegatingCallback<RESPONSE, DELEGATE_TYPE> extends SafeCoinbaseCallback<RESPONSE>{
+    protected final CoinbaseCallback<DELEGATE_TYPE> callback;
 
-    @Override
-    public final void pagedResults(RESPONSE response, PaginatedRequest<RESPONSE> next) {
-        handlerResults(response, next !=  null);
-        if(next != null){
-            handleNext(next);
-        }
+    public SafeDelegatingCallback(CoinbaseCallback<DELEGATE_TYPE> callback) {
+        this.callback = callback;
     }
 
-    protected abstract void handlerResults(RESPONSE response, boolean more);
-
-    protected abstract void handleNext(PaginatedRequest<RESPONSE> next);
+    @Override
+    public final void failed(Throwable throwable) {
+        callback.failed(throwable);
+    }
 }
