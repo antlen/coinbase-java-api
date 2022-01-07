@@ -14,17 +14,17 @@
 ### Create a synchronous client 
 ``` 
 CoinbaseClientBuilder builder = new CoinbaseClientBuilder(apiKey, secret); 
-CoinbaseClient client = builder.buildSyncClient(); 
+CoinbaseRestClient client = builder.buildRestClient(); 
 ```
 ### Create an asynchronous client 
 ``` 
 CoinbaseClientBuilder builder = new CoinbaseClientBuilder(apiKey, secret); 
-CoinbaseClient syncClient = builder.buildASyncClient(Executors.newFixedThreadPool(10), Executors.newSingleThreadScheduledExecutor());
+CoinbaseRestClient syncClient = builder.buildAsyncRestClient(Executors.newSingleThreadScheduledExecutor());
 ``` 
 or
 ``` 
 CoinbaseClientBuilder builder = new CoinbaseClientBuilder(apiKey, secret); 
-CoinbaseClient aSyncClient = builder.buildASyncClient();
+CoinbaseClient aSyncClient = builder.buildAsyncRestClient();
 ``` 
 
 ### User
@@ -35,13 +35,13 @@ then the response will contain a boolean sends_disabled field that indicates if 
 functionality has been disabled.
 
 ```
-CbUser user = syncClient.getUser();
+CbUserResponse user = syncClient.getUser();
 ```
 or
 ```
-aSyncClient.fetchUser(new ResponseCallback<CbUser>() {
+aSyncClient.fetchUser(new CoinbaseCallback<CbUserResponse>() {
      @Override
-     public void completed(CbUser cbUser) {
+     public void onResponse(CbUserResponse cbUser, boolean more) {
            //here is the user         
      }
 
@@ -64,16 +64,16 @@ or
 CbUserUpdateBuilder builder = new CbUserUpdateBuilder(u);
 builder.setName("antlen");
 
-aSyncClient.updateUser(new ResponseCallback<CbUser>() {
+aSyncClient.updateUser(builder.build(), new CoinbaseCallback<CbUserResponse>() {
   @Override
-  public void completed(CbUser cbUser) {
+  public void onResponse(CbUserResponse cbUser, boolean more) {
 
   }
   @Override
    public void failed(Throwable throwable) {
 
    }
-  }, builder.build());
+  });
 
 ```
 ## Other API calls
@@ -85,13 +85,13 @@ All API calls below have an async equivilent but for simplicity have been omitte
 Lists current user’s accounts to which the authentication method has access to.
 
 ```
-List<CbAccount> accounts syncClient.getAccounts();
+List<CbAccount> accounts syncClient.getAccounts().getData();
 ```
 Show current user’s account. To access the primary account for a given currency,
 a currency string (BTC or ETH) can be used instead of the account id in the URL.
 
 ```
-CbAccount account = syncClient.getAccount(id);
+CbAccount account = syncClient.getAccount(id).getData();
 ```
 
 Modifies user’s account name.
@@ -99,7 +99,7 @@ Modifies user’s account name.
 ```
 
 CbAccountUpdateRequest req = new CbAccountUpdateRequest(accountId, "antlen's BTC account.")
-CbAccount syncClient.updateAccountName(req);
+CbAccount syncClient.updateAccountName(req).getData();
 ```
 
 Removes user’s account. 
@@ -112,19 +112,19 @@ boolean deleted = syncClient.deleteAccount(d);
 Gets the current buy price from the exchange
 
 ```
-CbPrice buy = syncClient.getPrice(PriceType.BUY, "BTC-USD");
+CbPrice buy = syncClient.getPrice(PriceType.BUY, "BTC-USD").getData();
 ```
 
 Gets the current sell price from the exchange
 
 ```
-CbPrice sell = syncClient.getPrice(PriceType.SELL, "BTC-USD");
+CbPrice sell = syncClient.getPrice(PriceType.SELL, "BTC-USD").getData();
 ```
 
 Gets the current spot price from the exchange
 
 ```
-CbPrice spot = syncClient.getPrice(PriceType.SPOT, "BTC-USD");
+CbPrice spot = syncClient.getPrice(PriceType.SPOT, "BTC-USD").getData();
 ```
 
 Gets the spot price on the date from the exchange
@@ -132,26 +132,26 @@ Gets the spot price on the date from the exchange
 ```
 DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 LocalDate date = LocalDate.parse("2019-01-01", format);
-CbPrice spot = syncClient.getSpotPrice("BTC-USD", date);
+CbPrice spot = syncClient.getSpotPrice("BTC-USD", date).getData();
 ```
   
 List known currencies. Currency codes will conform to the ISO 4217 standard where possible.
 Currencies which have or had no representation in ISO 4217 may use a custom code (e.g. BTC).
 
 ```
-List<CbCurrencyCode> codes = syncClient.getCurrencyCodes();
+List<CbCurrencyCode> codes = syncClient.getCurrencyCodes().getData();
 ```
 
 Get the current exchange rates for the currency provided.
 
 ```
-CbExchangeRate rates = syncClient.getExchangeRate("BTC");
+CbExchangeRate rates = syncClient.getExchangeRate("BTC").getData();
 ```
 
 Get the USD exchange rates
 
 ```
-CbExchangeRate rates = syncClient.getExchangeRate();
+CbExchangeRate rates = syncClient.getExchangeRate().getData();
 ```
 
 ### Money
@@ -167,7 +167,7 @@ or other issue.
               .setToAddress(to).setDescription(note)setFrom(from)
               setAmount(amount).setCurrency(currency).setIdem(idem);
  
- CbAddressTransaction transaction = syncClient.sendMoney(b.build());`
+ CbAddressTransaction transaction = syncClient.sendMoney(b.build()).getData();`
 ```
 
 Requests money from an email address.
@@ -177,7 +177,7 @@ Requests money from an email address.
               .setFrom(from).setToEmail(email).setDescription(note).
               setAmount(amount).setCurrency(currency);
  
- CbAddressTransaction transaction = syncClient.reqestdMoney(b.build());`
+ CbAddressTransaction transaction = syncClient.reqestdMoney(b.build()).getData();`
 ```
 
 Transfer bitcoin, bitcoin cash, litecoin or ethereum between two of a user’s accounts. Following transfers are allowed:
@@ -188,7 +188,7 @@ Transfer bitcoin, bitcoin cash, litecoin or ethereum between two of a user’s a
                .setToAccount(to).setDescription(note).setFrom(from)
                .setAmount(amount).setCurrency(currency);
  
- CbAddressTransaction transaction = syncClient.transferMoney(b.build());`
+ CbAddressTransaction transaction = syncClient.transferMoney(b.build()).getData();`
 ```
 
 ### Trading
@@ -202,12 +202,12 @@ Places an order to the exchange but do not commit
                    .setPaymentMethod(pm).setCommit(commit)
                    .setFrom(from).setAmount(amount).setCurrency(currency)
                    .setCommit(false);
-CbTrade trade syncClient.placeOrder(CbOrderRequest request);
+CbTrade trade syncClient.placeOrder(CbOrderRequest request).getData();
 ```
 And then to commit:
 
 ```
-CbTrade committed = syncClient.commitOrder(trade);
+CbTrade committed = syncClient.commitOrder(trade).getData();
 ```
 Or just set commit to true to commit straight away
 
@@ -216,7 +216,7 @@ Or just set commit to true to commit straight away
                    .setPaymentMethod(pm).setCommit(commit)
                    .setFrom(from).setAmount(amount).setCurrency(currency)
                    .setCommit(true);
-CbTrade trade syncClient.placeOrder(CbOrderRequest request);
+CbTrade trade syncClient.placeOrder(CbOrderRequest request).getData();
 ```
 
 ## Related
