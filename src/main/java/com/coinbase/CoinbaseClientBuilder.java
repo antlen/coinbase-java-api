@@ -80,6 +80,11 @@ public class CoinbaseClientBuilder {
         return new CoinbaseAsyncRestClientImpl(filter, responseService, pageSize);
     }
 
+    /**
+     * Requests and responses will be handled asynchronously using thread pools provided by the
+     * Http engine.
+     * @return
+     */
     public CoinbaseAsyncRestClient buildAsyncRestClient() {
         return new CoinbaseAsyncRestClientImpl(filter, pageSize);
     }
