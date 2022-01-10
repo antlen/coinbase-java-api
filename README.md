@@ -19,7 +19,7 @@ CoinbaseRestClient client = builder.buildRestClient();
 ### Create an asynchronous client 
 ``` 
 CoinbaseClientBuilder builder = new CoinbaseClientBuilder(apiKey, secret); 
-CoinbaseRestClient syncClient = builder.buildAsyncRestClient(Executors.newSingleThreadScheduledExecutor());
+CoinbaseRestClient asyncClient = builder.buildAsyncRestClient(Executors.newSingleThreadScheduledExecutor());
 ``` 
 or
 ``` 
