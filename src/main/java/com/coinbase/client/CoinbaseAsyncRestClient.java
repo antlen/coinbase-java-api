@@ -30,6 +30,7 @@ import com.coinbase.domain.user.response.CbUserResponse;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -106,14 +107,14 @@ public interface CoinbaseAsyncRestClient {
      * Lists current user’s payment methods.
      * @param cb
      */
-    CompletableFuture<CbPaymentMethodListResponse> fetchPaymentMethods(CoinbaseCallback<CbPaymentMethodListResponse> cb);
+    CompletableFuture<List<CbPaymentMethodListResponse>> fetchPaymentMethods(CoinbaseCallback<CbPaymentMethodListResponse> cb);
 
     /**
      * Lists current user’s payment methods.
      * @param maxRecords
      * @param cb
      */
-    CompletableFuture<CbPaymentMethodListResponse> fetchPaymentMethods(int maxRecords, CoinbaseCallback<CbPaymentMethodListResponse> cb);
+    CompletableFuture<List<CbPaymentMethodListResponse>> fetchPaymentMethods(int maxRecords, CoinbaseCallback<CbPaymentMethodListResponse> cb);
 
 
     /**
@@ -138,7 +139,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @return
      */
-    CompletableFuture<CbAccountListResponse> fetchAccounts(CoinbaseCallback<CbAccountListResponse> cb);
+    CompletableFuture<List<CbAccountListResponse>> fetchAccounts(CoinbaseCallback<CbAccountListResponse> cb);
 
     /**
      * Lists current user’s accounts to which the authentication method has access to.
@@ -148,7 +149,7 @@ public interface CoinbaseAsyncRestClient {
      *
      * @return
      */
-    CompletableFuture<CbAccountListResponse> fetchAccounts(int maxRecords, CoinbaseCallback<CbAccountListResponse> cb);
+    CompletableFuture<List<CbAccountListResponse>> fetchAccounts(int maxRecords, CoinbaseCallback<CbAccountListResponse> cb);
 
     /**
      * Show current user’s account. To access the primary account for a given currency,
@@ -185,7 +186,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @param id
      */
-    CompletableFuture<CbAddressListResponse> fetchAddresses(String id, CoinbaseCallback<CbAddressListResponse> cb);
+    CompletableFuture<List<CbAddressListResponse>> fetchAddresses(String id, CoinbaseCallback<CbAddressListResponse> cb);
 
     /**
      *Lists addresses for an account.
@@ -197,7 +198,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @param maxRecords
      */
-    CompletableFuture<CbAddressListResponse> fetchAddresses(String id, int maxRecords, CoinbaseCallback<CbAddressListResponse> cb);
+    CompletableFuture<List<CbAddressListResponse>> fetchAddresses(String id, int maxRecords, CoinbaseCallback<CbAddressListResponse> cb);
 
     /**
      * Show an individual address for an account. A regular bitcoin, bitcoin cash, litecoin or ethereum address
@@ -227,7 +228,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @return
      */
-    CompletableFuture<CbAddressTransactionListResponse> fetchTransactions(String accountId, String address, CoinbaseCallback<CbAddressTransactionListResponse> cb);
+    CompletableFuture<List<CbAddressTransactionListResponse>> fetchTransactions(String accountId, String address, CoinbaseCallback<CbAddressTransactionListResponse> cb);
 
     /**
      * List transactions that have been sent to a specific address.
@@ -239,7 +240,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @return
      */
-    CompletableFuture<CbAddressTransactionListResponse> fetchTransactions(String accountId, String address, int maxRecords, CoinbaseCallback<CbAddressTransactionListResponse> cb);
+    CompletableFuture<List<CbAddressTransactionListResponse>> fetchTransactions(String accountId, String address, int maxRecords, CoinbaseCallback<CbAddressTransactionListResponse> cb);
 
     /**
      * fetch the API server time.
@@ -339,7 +340,7 @@ public interface CoinbaseAsyncRestClient {
      * @param account
      * @param side
      */
-    CompletableFuture<CbTradeListResponse> fetchTrades(String account, Side side, CoinbaseCallback<CbTradeListResponse> cb);
+    CompletableFuture<List<CbTradeListResponse>> fetchTrades(String account, Side side, CoinbaseCallback<CbTradeListResponse> cb);
 
     /**
      * fetch a list of all buy or sell trades for the account
@@ -348,7 +349,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @param maxRecords
      */
-    CompletableFuture<CbTradeListResponse> fetchTrades(String account, Side side, int maxRecords, CoinbaseCallback<CbTradeListResponse> cb);
+    CompletableFuture<List<CbTradeListResponse>> fetchTrades(String account, Side side, int maxRecords, CoinbaseCallback<CbTradeListResponse> cb);
 
     /**
      * loads an individual trade
@@ -365,7 +366,7 @@ public interface CoinbaseAsyncRestClient {
      * @param account
      * @param type
      */
-    CompletableFuture<CbCashTransactionListResponse> fetchCashTransactions(String account, CashTransactionType type, CoinbaseCallback<CbCashTransactionListResponse> cb);
+    CompletableFuture<List<CbCashTransactionListResponse>> fetchCashTransactions(String account, CashTransactionType type, CoinbaseCallback<CbCashTransactionListResponse> cb);
 
     /**
      * Lists cash transaction (deposit / withdrawal)  for an account.
@@ -375,7 +376,7 @@ public interface CoinbaseAsyncRestClient {
      * @param cb
      * @param maxRecords
      */
-    CompletableFuture<CbCashTransactionListResponse> fetchCashTransactions(String account, CashTransactionType type, int maxRecords, CoinbaseCallback<CbCashTransactionListResponse> cb);
+    CompletableFuture<List<CbCashTransactionListResponse>> fetchCashTransactions(String account, CashTransactionType type, int maxRecords, CoinbaseCallback<CbCashTransactionListResponse> cb);
 
     /**
      * fetch a single cash transaction (deposit / withdrawal)

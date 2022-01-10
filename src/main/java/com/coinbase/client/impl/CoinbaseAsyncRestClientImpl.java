@@ -33,7 +33,8 @@ import com.coinbase.domain.transaction.response.CbPaymentMethodResponse;
 import com.coinbase.domain.user.request.CbUserUpdateRequest;
 import com.coinbase.domain.user.response.CbUserResponse;
 import com.coinbase.exception.CbApiException;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.concurrent.*;
@@ -79,36 +80,55 @@ public class CoinbaseAsyncRestClientImpl extends AbstractCoinbaseRestClient impl
         this.responseService = responseService;
     }
 
-    private <T> CompletionStage<T> respond(CompletionStage<T> s, Function<? super T,? extends T> action){
-        if(responseService != null){
-            return s.thenApplyAsync(action, responseService);
-        }else{
-            return s.thenApplyAsync(action);
-        }
+    private <T> CompletableFuture<T> exceptionally(CompletableFuture<T> f, CoinbaseCallback<?> cb){
+        return f.exceptionally(throwable -> {
+            if(cb != null){
+                if(responseService != null){
+                    //send to the thread pool for execution
+                    responseService.submit(()->cb.failed(throwable));
+                }else{
+                    //run on this thread
+                    cb.failed(throwable);
+                }
+            }else{
+                throwable.printStackTrace();
+            }
+            return null;
+        });
     }
 
     private <T> CompletionStage<T> invoke(CoinbaseCallback<T> callback, Function<String, CompletionStage<T>>  t){
-        return respond(t.apply(null), t1 -> {
-            callback.onResponse(t1, false);
+        CompletableFuture<T>  s  =t.apply(null).toCompletableFuture();
+        return exceptionally( s.thenApplyAsync(t1 -> {
+            if(callback!=null) {
+                callback.onResponse(t1, false);
+            }
             return t1;
-        });
+        }, responseService != null? responseService : s.defaultExecutor()), callback);
     }
 
-    private <T extends CbPaginatedResponse> CompletionStage<T> invoke(CoinbaseCallback<T> callback, int max,  Function<String, CompletionStage<T>> t, String value){
-        return respond(t.apply(value), v -> {
-            try {
-                int nextMax = max - v.getData().size();
-                final String next = getNext(v);
-                if(nextMax > 0 && next != null){
-                    invoke(callback, nextMax, t, next);
-                }
-                callback.onResponse(v, next !=null);
-                return v;
-            }catch (Exception e){
-                callback.failed(e);
-                throw e;
-            }
-        });
+    public <T extends CbPaginatedResponse> CompletableFuture<List<T>> paginate(CoinbaseCallback<T> cb, int max,
+                                                                               Function<String, CompletionStage<T>> func) {
+        CompletableFuture<T>  s  =func.apply(null).toCompletableFuture();
+
+        //run the pagination on the request thread then delegate to the response thread once the results are in.
+        return exceptionally( s.thenApplyAsync(v ->
+                handlePagination(cb, new ArrayList<>(), v, max, func)), cb)
+                .thenApplyAsync(t -> t, responseService != null? responseService : s.defaultExecutor());
+    }
+
+    private <T extends CbPaginatedResponse> List<T> handlePagination(CoinbaseCallback<T> cb,
+                                                                     List<T> results, T v, int max, Function<String, CompletionStage<T>> func){
+        results.add(v);
+        int nextMax = max - v.getData().size();
+        final String next = getNext(v);
+        if(cb != null) {
+            responseService.submit( ()->  cb.onResponse(v, next != null));
+        }
+        if (nextMax > 0 && next != null){
+            return handlePagination(cb, results, func.apply(next).toCompletableFuture().join(), nextMax, func);
+        }
+        return results;
     }
 
     @Override
@@ -123,103 +143,102 @@ public class CoinbaseAsyncRestClientImpl extends AbstractCoinbaseRestClient impl
 
     @Override
     public CompletableFuture<CbUserResponse> fetchUser(CoinbaseCallback<CbUserResponse> cb) {
-        return invoke(cb,  result -> service.getUser()).toCompletableFuture();
+        return invoke(cb, result -> service.getUser()).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbUserResponse> fetchUser(CoinbaseCallback<CbUserResponse> cb, String userId) {
-        return invoke(cb,  result -> service.getUser(userId)).toCompletableFuture();
+        return invoke(cb, result -> service.getUser(userId)).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbPaymentMethodListResponse> fetchPaymentMethods(CoinbaseCallback<CbPaymentMethodListResponse> cb) {
+    public CompletableFuture<List<CbPaymentMethodListResponse>> fetchPaymentMethods(CoinbaseCallback<CbPaymentMethodListResponse> cb) {
         return fetchPaymentMethods(Integer.MAX_VALUE, cb);
     }
 
     @Override
-    public CompletableFuture<CbPaymentMethodListResponse> fetchPaymentMethods(int maxRecords, CoinbaseCallback<CbPaymentMethodListResponse> cb) {
-        return invoke(cb, maxRecords,
-                before -> service.getPaymentMethods(pageSize,before),
-                null).toCompletableFuture();
+    public CompletableFuture<List<CbPaymentMethodListResponse>> fetchPaymentMethods(int maxRecords, CoinbaseCallback<CbPaymentMethodListResponse> cb) {
+        return paginate(cb, maxRecords,
+                before -> service.getPaymentMethods(pageSize,before));
     }
 
     @Override
     public CompletableFuture<CbPaymentMethodResponse> fetchPaymentMethod(String id, CoinbaseCallback<CbPaymentMethodResponse> cb) {
-        return invoke(cb,  result -> service.getPaymentMethod(id)).toCompletableFuture();
+        return invoke(cb, result -> service.getPaymentMethod(id)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbUserResponse> updateUser(CbUserUpdateRequest req, CoinbaseCallback<CbUserResponse> cb) {
-        return invoke(cb,  result -> service.updateUser(req)).toCompletableFuture();
+        return invoke(cb, result -> service.updateUser(req)).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbAccountListResponse> fetchAccounts(CoinbaseCallback<CbAccountListResponse> cb) {
+    public CompletableFuture<List<CbAccountListResponse>> fetchAccounts(int maxRecords, CoinbaseCallback<CbAccountListResponse> cb) {
+        return paginate(cb, maxRecords,
+                before -> service.getAccounts(pageSize,before));
+    }
+
+    @Override
+    public CompletableFuture<List<CbAccountListResponse>> fetchAccounts(CoinbaseCallback<CbAccountListResponse> cb) {
         return fetchAccounts(Integer.MAX_VALUE, cb);
     }
 
-    @Override
-    public CompletableFuture<CbAccountListResponse> fetchAccounts(int maxRecords, CoinbaseCallback<CbAccountListResponse> cb) {
-        return invoke(cb,Integer.MAX_VALUE, next ->service.getAccounts(pageSize, next), null).toCompletableFuture();
-    }
 
     @Override
     public CompletableFuture<CbAccountResponse> fetchAccount(String id, CoinbaseCallback<CbAccountResponse> cb) {
-        return invoke(cb,  result -> service.getAccount(id)).toCompletableFuture();
+        return invoke(cb, result -> service.getAccount(id)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbAccountResponse> updateAccountName(String account, CbAccountUpdateRequest req, CoinbaseCallback<CbAccountResponse> cb) {
-        return invoke(cb,  result -> service.updateAccountName(account, req)).toCompletableFuture();
+        return invoke(cb, result -> service.updateAccountName(account, req)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<Response> deleteAccount(String id, CoinbaseCallback<Response> cb) {
-        return invoke(cb,  result -> service.deleteAccount(id)).toCompletableFuture();
+        return invoke(cb, result -> service.deleteAccount(id)).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbAddressListResponse> fetchAddresses(String id, CoinbaseCallback<CbAddressListResponse> cb) {
+    public CompletableFuture<List<CbAddressListResponse>> fetchAddresses(String id, CoinbaseCallback<CbAddressListResponse> cb) {
         return fetchAddresses(id, Integer.MAX_VALUE, cb);
     }
 
     @Override
-    public CompletableFuture<CbAddressListResponse> fetchAddresses(String id, int maxRecords, CoinbaseCallback<CbAddressListResponse> cb) {
-        return invoke(cb,maxRecords,
-                next -> service.getAddresses(id, pageSize, next),
-                null).toCompletableFuture();
+    public CompletableFuture<List<CbAddressListResponse>> fetchAddresses(String id, int maxRecords, CoinbaseCallback<CbAddressListResponse> cb) {
+        return paginate(cb,maxRecords,
+                next -> service.getAddresses(id, pageSize, next));
     }
 
     @Override
     public CompletableFuture<CbAddressResponse> fetchAddress(String account, String addressId, CoinbaseCallback<CbAddressResponse> cb) {
-        return invoke(cb,  result -> service.getAddress(account, addressId)).toCompletableFuture();
+        return invoke(cb, result -> service.getAddress(account, addressId)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbAddressResponse> createAddress(String accountId, CbCreateAddressRequest request, CoinbaseCallback<CbAddressResponse> cb) {
-        return invoke(cb,  result -> service.createAddress(accountId, request)).toCompletableFuture();
+        return invoke(cb, result -> service.createAddress(accountId, request)).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbAddressTransactionListResponse> fetchTransactions(String accountId, String address, CoinbaseCallback<CbAddressTransactionListResponse> cb) {
+    public CompletableFuture<List<CbAddressTransactionListResponse>> fetchTransactions(String accountId, String address, CoinbaseCallback<CbAddressTransactionListResponse> cb) {
        return fetchTransactions(accountId, address,Integer.MAX_VALUE, cb);
     }
 
     @Override
-    public CompletableFuture<CbAddressTransactionListResponse> fetchTransactions(String accountId, String address, int maxRecords, CoinbaseCallback<CbAddressTransactionListResponse> cb) {
-        return invoke(cb,maxRecords,
-                s -> service.getTransactions(accountId, address, pageSize, s),
-                null).toCompletableFuture();
+    public CompletableFuture<List<CbAddressTransactionListResponse>> fetchTransactions(String accountId, String address, int maxRecords, CoinbaseCallback<CbAddressTransactionListResponse> cb) {
+        return paginate(cb,maxRecords,
+                s -> service.getTransactions(accountId, address, pageSize, s));
     }
 
     @Override
     public CompletableFuture<CbTimeResponse> fetchServerTime(CoinbaseCallback<CbTimeResponse> cb) {
-        return invoke(cb,  result -> service.getServerTime()).toCompletableFuture();
+        return invoke(cb, result -> service.getServerTime()).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbPriceResponse> fetchPrice(PriceType t, String ticker, CoinbaseCallback<CbPriceResponse> cb) {
-        return invoke(cb,  result -> service.getPrice(ticker, t.getName())).toCompletableFuture();
+        return invoke(cb, result -> service.getPrice(ticker, t.getName())).toCompletableFuture();
     }
 
     @Override
@@ -230,17 +249,17 @@ public class CoinbaseAsyncRestClientImpl extends AbstractCoinbaseRestClient impl
 
     @Override
     public CompletableFuture<CbCurrencyCodeListResponse> fetchCurrencyCodes(CoinbaseCallback<CbCurrencyCodeListResponse> cb) {
-        return invoke(cb,  result -> service.getCurrencyCodes()).toCompletableFuture();
+        return invoke(cb, result -> service.getCurrencyCodes()).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbExchangeRateResponse> fetchExchangeRate(String base, CoinbaseCallback<CbExchangeRateResponse> cb) {
-        return invoke(cb,  result -> service.getExchangeRate(base)).toCompletableFuture();
+        return invoke(cb, result -> service.getExchangeRate(base)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbExchangeRateResponse> fetchExchangeRate(CoinbaseCallback<CbExchangeRateResponse> cb) {
-        return invoke(cb,  result -> service.getExchangeRate()).toCompletableFuture();
+        return invoke(cb, result -> service.getExchangeRate()).toCompletableFuture();
     }
 
     @Override
@@ -268,65 +287,63 @@ public class CoinbaseAsyncRestClientImpl extends AbstractCoinbaseRestClient impl
         if( type != null&& !req.getType().equals(type.getName())){
             throw new CbApiException("Incorrect type '"+req.getType()+"' for this request.");
         }
-        return  invoke(cb,  result -> service.sendMoneyRequest(account, req)).toCompletableFuture();
+        return  invoke(cb, result -> service.sendMoneyRequest(account, req)).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbTradeListResponse> fetchTrades(String account, Side side, CoinbaseCallback<CbTradeListResponse> cb) {
+    public CompletableFuture<List<CbTradeListResponse>> fetchTrades(String account, Side side, CoinbaseCallback<CbTradeListResponse> cb) {
         return fetchTrades(account, side, Integer.MAX_VALUE, cb);
     }
 
     @Override
-    public CompletableFuture<CbTradeListResponse> fetchTrades(String account, Side side, int maxRecords, CoinbaseCallback<CbTradeListResponse> cb) {
-        return invoke(cb, maxRecords,
-                next -> service.getTrades(account, side.getUri(), pageSize, next),
-                null).toCompletableFuture();
+    public CompletableFuture<List<CbTradeListResponse>> fetchTrades(String account, Side side, int maxRecords, CoinbaseCallback<CbTradeListResponse> cb) {
+        return paginate(cb, maxRecords,
+                next -> service.getTrades(account, side.getUri(), pageSize, next));
     }
 
     @Override
     public CompletableFuture<CbTradeResponse> fetchTrade(String account, String id, Side side, CoinbaseCallback<CbTradeResponse> cb) {
-        return invoke(cb,  result -> service.getTrade(account, id, side.getUri())).toCompletableFuture();
+        return invoke(cb, result -> service.getTrade(account, id, side.getUri())).toCompletableFuture();
     }
 
     @Override
-    public CompletableFuture<CbCashTransactionListResponse> fetchCashTransactions(String account, CashTransactionType type, CoinbaseCallback<CbCashTransactionListResponse> cb) {
+    public CompletableFuture<List<CbCashTransactionListResponse>> fetchCashTransactions(String account, CashTransactionType type, CoinbaseCallback<CbCashTransactionListResponse> cb) {
         return fetchCashTransactions(account, type, Integer.MAX_VALUE, cb);
     }
 
     @Override
-    public CompletableFuture<CbCashTransactionListResponse> fetchCashTransactions(String account, CashTransactionType type, int maxRecords, CoinbaseCallback<CbCashTransactionListResponse> cb) {
-        return invoke(cb,maxRecords,
-                next -> service.getCashTransactions(account, type.getUri(), pageSize, next),
-                null).toCompletableFuture();
+    public CompletableFuture<List<CbCashTransactionListResponse>> fetchCashTransactions(String account, CashTransactionType type, int maxRecords, CoinbaseCallback<CbCashTransactionListResponse> cb) {
+        return paginate(cb,maxRecords,
+                next -> service.getCashTransactions(account, type.getUri(), pageSize, next));
     }
 
     @Override
     public CompletableFuture<CbCashTransactionResponse> fetchCashTransaction(String account, String id, CashTransactionType type, CoinbaseCallback<CbCashTransactionResponse> cb) {
-        return invoke(cb,  result -> service.getCashTransaction(account, id, type.getUri())).toCompletableFuture();
+        return invoke(cb, result -> service.getCashTransaction(account, id, type.getUri())).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbCashTransactionResponse> executeCashTransaction(String account, CbCashTransactionRequest req, CashTransactionType type, CoinbaseCallback<CbCashTransactionResponse> cb) {
-        return invoke(cb,  result -> service.executeCashTransaction(account, req)).toCompletableFuture();
+        return invoke(cb, result -> service.executeCashTransaction(account, req)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbCashTransactionResponse> commitCashTransaction(String account, String id, CashTransactionType type, CoinbaseCallback<CbCashTransactionResponse> cb) {
-        return invoke(cb,  result -> service.commitCashTransaction(account, id, type.getUri())).toCompletableFuture();
+        return invoke(cb, result -> service.commitCashTransaction(account, id, type.getUri())).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbTradeResponse> placeBuyOrder(String account,CbOrderRequest request, CoinbaseCallback<CbTradeResponse> cb) {
-        return invoke(cb,  result -> service.placeOrder(account, Side.BUY.getUri(), request)).toCompletableFuture();
+        return invoke(cb, result -> service.placeOrder(account, Side.BUY.getUri(), request)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbTradeResponse> placeSellOrder(String account,CbOrderRequest request, CoinbaseCallback<CbTradeResponse> cb) {
-        return invoke(cb,  result -> service.placeOrder(account, Side.SELL.getUri(), request)).toCompletableFuture();
+        return invoke(cb, result -> service.placeOrder(account, Side.SELL.getUri(), request)).toCompletableFuture();
     }
 
     @Override
     public CompletableFuture<CbTradeResponse> commitOrder(String account, String orderId, Side side, CoinbaseCallback<CbTradeResponse> cb) {
-        return invoke(cb,  result -> service.commitOrder(account, orderId, side.getUri())).toCompletableFuture();
+        return invoke(cb, result -> service.commitOrder(account, orderId, side.getUri())).toCompletableFuture();
     }
 }
