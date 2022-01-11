@@ -5,7 +5,7 @@
         <dependency>
             <groupId>org.estonlabs</groupId>
             <artifactId>coinbase-java-api</artifactId>
-            <version>1.1</version>
+            <version>1.3</version>
         </dependency>
 ```
 
