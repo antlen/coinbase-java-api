@@ -91,7 +91,7 @@ public interface CoinbaseAPIv2Service{
     CompletionStage<CbAccountResponse> getAccount(@PathParam("id") String id);
 
     @PUT
-    @Path("/accounts")
+    @Path("/accounts/{account}")
     CompletionStage<CbAccountResponse> updateAccountName(@PathParam("account") String account, CbAccountUpdateRequest req);
 
     @DELETE
